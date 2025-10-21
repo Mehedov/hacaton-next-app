@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { IServerResponse, IDataNode } from '@/types/generate.type'
+import { IDataNode, IServerResponse } from '@/types/generate.type'
+import React, { useEffect, useState } from 'react'
 
 interface ServerDataVisualizationProps {
 	data: IServerResponse | null
@@ -31,10 +31,10 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 	}, [data])
 	if (isLoading) {
 		return (
-			<div className="w-full max-w-6xl mx-auto p-5">
-				<div className="flex flex-col items-center justify-center p-10 text-gray-600">
-					<div className="w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-					<p className="text-lg">Получение данных от сервера...</p>
+			<div className='w-full max-w-6xl mx-auto p-5'>
+				<div className='flex flex-col items-center justify-center p-10 text-gray-600'>
+					<div className='w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mb-4'></div>
+					<p className='text-lg'>Получение данных от сервера...</p>
 				</div>
 			</div>
 		)
@@ -42,10 +42,10 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 
 	if (error) {
 		return (
-			<div className="w-full max-w-6xl mx-auto p-5">
-				<div className="flex flex-col items-center justify-center p-10 text-red-600 text-center">
-					<div className="text-2xl mb-4">⚠️</div>
-					<p className="text-lg max-w-md">{error}</p>
+			<div className='w-full max-w-6xl mx-auto p-5'>
+				<div className='flex flex-col items-center justify-center p-10 text-red-600 text-center'>
+					<div className='text-2xl mb-4'>⚠️</div>
+					<p className='text-lg max-w-md'>{error}</p>
 				</div>
 			</div>
 		)
@@ -53,15 +53,18 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 
 	if (!data) {
 		return (
-			<div className="w-full max-w-6xl mx-auto p-5">
-				<div className="flex items-center justify-center p-10 text-gray-600 text-center">
-					<p className="text-lg text-gray-400">Нажмите Сгенерировать для получения данных</p>
+			<div className='w-full max-w-6xl mx-auto p-5'>
+				<div className='flex items-center justify-center p-10 text-gray-600 text-center'>
+					<p className='text-lg text-gray-400'>
+						Нажмите Сгенерировать для получения данных
+					</p>
 				</div>
 			</div>
 		)
 	}
 
 	const formatDataNodes = (data: IServerResponse): IDataNode[] => {
+		console.log(data.inputLayer.clientUUID)
 		return [
 			{
 				id: 'clientUUID',
@@ -87,7 +90,7 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 			{
 				id: 'serverUUID',
 				label: 'UUID Сервера',
-				value: data.outputLayer.serverUUID,
+				value: data.outputLayer.requestUUID,
 				type: 'string',
 				description: 'Уникальный идентификатор сервера',
 			},
@@ -133,16 +136,21 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 		switch (node.type) {
 			case 'string':
 				return (
-					<div className="font-mono text-sm p-3 bg-gray-50 rounded-lg border">
+					<div className='font-mono text-sm p-3 bg-gray-50 rounded-lg border'>
 						{node.id === 'extraSalt' || node.id === 'entropyData' ? (
-							<div className="flex items-center gap-2">
-								<span className="flex-1 text-gray-700 text-xs break-all" title={String(node.value)}>
+							<div className='flex items-center gap-2'>
+								<span
+									className='flex-1 text-gray-700 text-xs break-all'
+									title={String(node.value)}
+								>
 									{String(node.value).substring(0, 16)}...
 								</span>
 								<button
-									className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
-									onClick={() => navigator.clipboard.writeText(String(node.value))}
-									title="Копировать полное значение"
+									className='bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors'
+									onClick={() =>
+										navigator.clipboard.writeText(String(node.value))
+									}
+									title='Копировать полное значение'
 								>
 									📋
 								</button>
@@ -150,70 +158,86 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 						) : node.id === 'entropyUrl' ? (
 							<a
 								href={String(node.value)}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="text-blue-600 hover:text-blue-800 underline break-all"
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-blue-600 hover:text-blue-800 underline break-all'
 							>
 								{String(node.value)}
 							</a>
 						) : (
-							<span className="text-gray-800 break-all" title={String(node.value)}>
+							<span
+								className='text-gray-800 break-all'
+								title={String(node.value)}
+							>
 								{String(node.value).length > 50
 									? `${String(node.value).substring(0, 50)}...`
-									: String(node.value)
-								}
+									: String(node.value)}
 							</span>
 						)}
 					</div>
 				)
 			case 'number':
 				return (
-					<div className="text-green-600 font-semibold text-xl text-center p-3 bg-green-50 rounded-lg border border-green-200">
+					<div className='text-green-600 font-semibold text-xl text-center p-3 bg-green-50 rounded-lg border border-green-200'>
 						{node.value}
 					</div>
 				)
 			case 'interval':
 				return (
-					<div className="text-orange-600 font-semibold text-lg text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+					<div className='text-orange-600 font-semibold text-lg text-center p-3 bg-orange-50 rounded-lg border border-orange-200'>
 						[{String(node.value).replace(',', ', ')}]
 					</div>
 				)
 			case 'array':
 				const values = node.value as number[]
 				return (
-					<div className="flex flex-col gap-3">
-						<div className="flex flex-wrap gap-2">
+					<div className='flex flex-col gap-3'>
+						<div className='flex flex-wrap gap-2'>
 							{values.map((val, index) => (
-								<span key={index} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center min-w-[35px]">
+								<span
+									key={index}
+									className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center min-w-[35px]'
+								>
 									{val}
 								</span>
 							))}
 						</div>
-						<div className="text-gray-600 text-sm text-center pt-2 border-t border-gray-200">
+						<div className='text-gray-600 text-sm text-center pt-2 border-t border-gray-200'>
 							Всего: {values.length} значений
 						</div>
 					</div>
 				)
 			default:
-				return <div className="font-mono text-sm text-gray-800">{String(node.value)}</div>
+				return (
+					<div className='font-mono text-sm text-gray-800'>
+						{String(node.value)}
+					</div>
+				)
 		}
 	}
 
 	return (
-		<div className="w-full max-w-6xl mx-auto p-5">
-			<div className="text-center mb-8 pb-4 border-b-2 border-gray-200">
-				<h3 className="text-gray-800 text-2xl font-semibold mb-2">📊 Данные от сервера</h3>
-				<div className="text-gray-500 text-sm">
+		<div className='w-full max-w-6xl mx-auto p-5'>
+			<div className='text-center mb-8 pb-4 border-b-2 border-gray-200'>
+				<h3 className='text-gray-800 text-2xl font-semibold mb-2'>
+					📊 Данные от сервера
+				</h3>
+				<div className='text-gray-500 text-sm'>
 					{new Date().toLocaleString('ru-RU')}
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-6">
-				<div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg">
-					<h4 className="text-lg font-medium mb-5">Входные данные</h4>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+			<div className='flex flex-col gap-6'>
+				<div className='bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg'>
+					<h4 className='text-lg font-medium mb-5'>Входные данные</h4>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
 						{formatDataNodes(data)
-							.filter(node => node.id === 'clientUUID' || node.id === 'interval' || node.id === 'count')
+							.filter(
+								node =>
+									node.id === 'clientUUID' ||
+									node.id === 'interval' ||
+									node.id === 'count'
+							)
 							.map((node, index) => (
 								<div
 									key={node.id}
@@ -223,12 +247,17 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 											: 'opacity-0 translate-y-5 scale-95'
 									} hover:translate-y-[-4px] hover:shadow-xl hover:border-blue-500 border-2 border-transparent`}
 									style={{
-										transitionDelay: `${index * 150}ms`
+										transitionDelay: `${index * 150}ms`,
 									}}
 								>
-									<div className="flex justify-between items-center mb-3">
-										<span className="font-semibold text-gray-800">{node.label}</span>
-										<div className="w-5 h-5 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 cursor-help hover:bg-blue-500 hover:text-white transition-colors" title={node.description}>
+									<div className='flex justify-between items-center mb-3'>
+										<span className='font-semibold text-gray-800'>
+											{node.label}
+										</span>
+										<div
+											className='w-5 h-5 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 cursor-help hover:bg-blue-500 hover:text-white transition-colors'
+											title={node.description}
+										>
 											ℹ️
 										</div>
 									</div>
@@ -238,11 +267,18 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 					</div>
 				</div>
 
-				<div className="bg-white rounded-xl shadow-lg p-6">
-					<h4 className="text-lg font-medium mb-5 text-gray-800">Выходные данные</h4>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+				<div className='bg-white rounded-xl shadow-lg p-6'>
+					<h4 className='text-lg font-medium mb-5 text-gray-800'>
+						Выходные данные
+					</h4>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
 						{formatDataNodes(data)
-							.filter(node => node.id !== 'clientUUID' && node.id !== 'interval' && node.id !== 'count')
+							.filter(
+								node =>
+									node.id !== 'clientUUID' &&
+									node.id !== 'interval' &&
+									node.id !== 'count'
+							)
 							.map((node, index) => (
 								<div
 									key={node.id}
@@ -252,12 +288,17 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 											: 'opacity-0 translate-y-5 scale-95 border-transparent'
 									} hover:translate-y-[-4px] hover:shadow-xl hover:border-blue-500`}
 									style={{
-										transitionDelay: `${(index + 3) * 150}ms`
+										transitionDelay: `${(index + 3) * 150}ms`,
 									}}
 								>
-									<div className="flex justify-between items-center mb-3">
-										<span className="font-semibold text-gray-800">{node.label}</span>
-										<div className="w-5 h-5 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 cursor-help hover:bg-blue-500 hover:text-white transition-colors" title={node.description}>
+									<div className='flex justify-between items-center mb-3'>
+										<span className='font-semibold text-gray-800'>
+											{node.label}
+										</span>
+										<div
+											className='w-5 h-5 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 cursor-help hover:bg-blue-500 hover:text-white transition-colors'
+											title={node.description}
+										>
 											ℹ️
 										</div>
 									</div>

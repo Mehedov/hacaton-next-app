@@ -11,7 +11,7 @@ export interface IServerResponse {
 		jwtServerUUIDToken: string
 	}
 	outputLayer: {
-		serverUUID: string
+		requestUUID: string
 		extraSalt: string
 		entropyData: {
 			data: string
