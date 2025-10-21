@@ -1,288 +1,85 @@
+'use client'
+
 import {
 	Background,
 	MarkerType,
 	Node,
-	Position,
 	ReactFlow,
 	useConnection,
 } from '@xyflow/react'
 
-import { useCallback, useState, useEffect } from 'react'
-import { AnnotationNode } from './AnnotationNode'
+import { IServerResponse } from '@/types/generate.type'
+import { useCallback, useEffect, useState } from 'react'
+import ServerDataVisualization from './ServerDataVisualization/ServerDataVisualization'
 
 import '@xyflow/react/dist/style.css'
+import {
+	connectionAnnotation,
+	initialEdges,
+	initialNodes,
+	nodeTypes,
+} from './flow.data'
 
-const nodeTypes = {
-	annotation: AnnotationNode,
+interface FlowProps {
+	data: IServerResponse | null
 }
 
-const connectionAnnotation = {
-	id: 'connection-annotation',
-	type: 'annotation',
-	selectable: false,
-	data: {
-		label: 'this is a "connection"',
-		arrowStyle: 'arrow-top-left',
-	},
-	position: { x: 0, y: 0 },
-}
+export default function Flow({ data }: FlowProps) {
+	const [nodes, setNodes] = useState<Node[]>(
+		initialNodes.map(node => ({
+			...node,
+			style: {
+				...node.style,
+				opacity: 0,
+			},
+		}))
+	)
 
-const initialNodes = [
-	{
-		id: '1-1',
-		type: 'default',
-		data: {
-			label: 'API Nist',
-		},
-		position: { x: 0, y: -150 },
-		sourcePosition: Position.Bottom,
-		targetPosition: Position.Top,
-	},
-	{
-		id: '1-2',
-		type: 'default',
-		data: {
-			label: 'Entropy',
-		},
-		position: { x: 0, y: 0 },
-		sourcePosition: Position.Right,
-		targetPosition: Position.Top,
-		style: {
-			backgroundColor: '#ef4444',
-			color: 'white',
-			border: '2px solid #dc2626',
-		},
-	},
-	{
-		id: '2-2',
-		type: 'default',
-		data: {
-			label: 'Genesis Hash',
-		},
-		position: { x: 300, y: 0 },
-		sourcePosition: Position.Right,
-		targetPosition: Position.Left,
-	},
-	{
-		id: '3-2',
-		type: 'default',
-		data: {
-			label: 'Out',
-		},
-		position: { x: 550, y: -200 },
-		sourcePosition: Position.Right,
-		targetPosition: Position.Left,
-	},
-	{
-		id: '4-2',
-		type: 'default',
-		data: {
-			label: 'Entropy + UUID',
-		},
-		position: { x: 800, y: 0 },
-		sourcePosition: Position.Right,
-		targetPosition: Position.Left,
-		style: {
-			backgroundColor: '#8b5cf6',
-			color: 'white',
-			border: '2px solid #7c3aed',
-		},
-	},
-	{
-		id: '5-0',
-		type: 'default',
-		data: {
-			label: 'UUID Server',
-		},
-		position: { x: 0, y: 150 },
-		sourcePosition: Position.Right,
-		targetPosition: Position.Bottom,
-		style: {
-			backgroundColor: '#ef4444',
-			color: 'white',
-			border: '2px solid #dc2626',
-		},
-	},
-	{
-		id: '5-2',
-		type: 'default',
-		data: {
-			label: 'extra_salt',
-		},
-		position: { x: 200, y: 150 },
-		sourcePosition: Position.Right,
-		targetPosition: Position.Left,
-		style: {
-			backgroundColor: '#22c55e',
-			color: 'white',
-			border: '2px solid #16a34a',
-		},
-	},
-	{
-		id: '5-1',
-		type: 'default',
-		data: {
-			label: 'UUID Client',
-		},
-		position: { x: 400, y: 150 },
-		targetPosition: Position.Left,
-		style: {
-			backgroundColor: '#22c55e',
-			color: 'white',
-			border: '2px solid #16a34a',
-		},
-	},
-	{
-		id: '5-3',
-		type: 'default',
-		data: {
-			label: 'UUID Server hash',
-		},
-		position: { x: 0, y: 250 },
-		sourcePosition: Position.Top,
-		targetPosition: Position.Right,
-		style: {
-			backgroundColor: '#ef4444',
-			color: 'white',
-			border: '2px solid #dc2626',
-		},
-	},
-	{
-		id: '5-5',
-		type: 'default',
-		data: {
-			label: 'Client',
-		},
-		position: { x: 200, y: 250 },
-		sourcePosition: Position.Left,
-		targetPosition: Position.Right,
-		style: {
-			backgroundColor: '#22c55e',
-			color: 'white',
-			border: '2px solid #16a34a',
-		},
-	},
-]
+	// Состояние для данных сервера
+	const [serverData, setServerData] = useState<IServerResponse | null>(data)
+	const [error, setError] = useState<string | null>(null)
 
-const initialEdges = [
-	{
-		id: 'e1-2',
-		source: '1-1',
-		target: '1-2',
-		// label: 'edge label',
-		type: 'smoothstep',
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e1-3',
-		source: '1-2',
-		target: '2-2',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e2-3',
-		source: '2-2',
-		target: '3-2',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e3-4',
-		source: '3-2',
-		target: '4-2',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e5-0-5-2',
-		source: '5-0',
-		target: '5-2',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e5-2-5-1',
-		source: '5-2',
-		target: '5-1',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e5-2',
-		source: '5-2',
-		target: '2-2',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e5-3-5-0',
-		target: '5-0',
-		source: '5-3',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e5-4-5-3',
-		source: '5-4',
-		target: '5-3',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e5-1-5-5',
-		source: '5-1',
-		target: '5-5',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-	{
-		id: 'e5-3-5-5',
-		source: '5-5',
-		target: '5-3',
-		type: 'smoothstep',
-		markerEnd: {
-			type: MarkerType.ArrowClosed,
-		},
-		style: { opacity: 0 },
-	},
-]
+	// Define edges type to include all possible style properties
+	const [edges, setEdges] = useState<
+		{
+			id: string
+			source: string
+			target: string
+			type: string
+			markerEnd?: {
+				type: MarkerType
+				width?: number
+				height?: number
+				color?: string
+			}
+			style?: {
+				opacity: number
+				transition?: string
+				strokeWidth?: number
+				stroke?: string
+			}
+		}[]
+	>(
+		initialEdges.map(edge => ({
+			...edge,
+			style: {
+				opacity: 0,
+				...edge.style,
+			},
+		}))
+	)
 
-export default function Flow() {
-	const [nodes, setNodes] = useState<Node[]>(initialNodes.map(node => ({ ...node, style: { ...node.style, opacity: 0 } })))
-	const [edges, setEdges] = useState(initialEdges)
 	const [visibleNodes, setVisibleNodes] = useState<string[]>([])
 	const [visibleEdges, setVisibleEdges] = useState<string[]>([])
 	const connection = useConnection()
 
 	useEffect(() => {
+		if (!data) return
+
+		// Сброс анимации
+		setVisibleNodes([])
+		setVisibleEdges([])
+
 		const nodeOrder = [
 			'1-1', // API Nist
 			'1-2', // Entropy
@@ -304,13 +101,13 @@ export default function Flow() {
 
 		// Порядок появления рёбер (на основе порядка узлов)
 		const edgeOrder = [
-			'e1-2',     // API Nist -> Entropy
-			'e1-3',     // Entropy -> Genesis Hash
+			'e1-2', // API Nist -> Entropy
+			'e1-3', // Entropy -> Genesis Hash
 			'e5-0-5-2', // UUID Server -> extra_salt
 			'e5-2-5-1', // extra_salt -> UUID Client
-			'e5-2',     // extra_salt -> Genesis Hash
-			'e2-3',     // Genesis Hash -> Out
-			'e3-4',     // Out -> Entropy + UUID
+			'e5-2', // extra_salt -> Genesis Hash
+			'e2-3', // Genesis Hash -> Out
+			'e3-4', // Out -> Entropy + UUID
 			'e5-3-5-0', // UUID Server hash -> UUID Server
 			'e5-4-5-3', // 5-4 -> UUID Server hash
 			'e5-1-5-5', // UUID Client -> Client
@@ -320,9 +117,9 @@ export default function Flow() {
 		edgeOrder.forEach((edgeId, index) => {
 			setTimeout(() => {
 				setVisibleEdges(prev => [...prev, edgeId])
-			}, (nodeOrder.length * 500) + (index * 300)) // После всех узлов, 300ms между рёбрами
+			}, nodeOrder.length * 500 + index * 300) // После всех узлов, 300ms между рёбрами
 		})
-	}, [])
+	}, [data])
 
 	// Обновляем opacity узлов на основе visibleNodes
 	useEffect(() => {
@@ -332,8 +129,8 @@ export default function Flow() {
 				style: {
 					...node.style,
 					opacity: visibleNodes.includes(node.id) ? 1 : 0,
-					transition: 'opacity 0.5s ease-in-out'
-				}
+					transition: 'opacity 0.5s ease-in-out',
+				},
 			}))
 		)
 	}, [visibleNodes])
@@ -346,11 +143,21 @@ export default function Flow() {
 				style: {
 					...edge.style,
 					opacity: visibleEdges.includes(edge.id) ? 1 : 0,
-					transition: 'opacity 0.5s ease-in-out'
-				}
+					transition: 'opacity 0.5s ease-in-out',
+					strokeWidth: edge.style?.strokeWidth || undefined,
+					stroke: edge.style?.stroke || undefined,
+				},
 			}))
 		)
 	}, [visibleEdges])
+
+	useEffect(() => {
+		setServerData(data)
+		// Сброс анимации при новых данных
+		setVisibleNodes([])
+		setVisibleEdges([])
+	}, [data])
+
 	const onMouseMove = useCallback(() => {
 		if (connection.inProgress) {
 			const { from, to } = connection
@@ -399,17 +206,34 @@ export default function Flow() {
 	}, [])
 
 	return (
-		<div style={{ width: '100%', height: '400px' }} onMouseMove={onMouseMove}>
-			<ReactFlow
-				nodes={nodes}
-				edges={edges}
-				nodeTypes={nodeTypes}
-				onConnectEnd={onConnectEnd}
-				fitView
-				preventScrolling={false}
-			>
-				<Background />
-			</ReactFlow>
+		<div className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-5'>
+			<div className='max-w-9xl mx-auto space-y-6'>
+				{/* Data Visualization */}
+				<div className='bg-white rounded-xl shadow-lg overflow-hidden'>
+					<ServerDataVisualization
+						data={serverData}
+						isLoading={false}
+						error={error}
+					/>
+				</div>
+				{/* Flow Visualization */}
+				{serverData && (
+					<div className='bg-white rounded-xl shadow-lg p-4 h-[500px] relative overflow-hidden'>
+						<ReactFlow
+							nodes={nodes}
+							edges={edges}
+							nodeTypes={nodeTypes}
+							onConnectEnd={onConnectEnd}
+							fitView
+							preventScrolling={false}
+							className='bg-transparent'
+							onMouseMove={onMouseMove}
+						>
+							<Background className='bg-gray-50' />
+						</ReactFlow>
+					</div>
+				)}
+			</div>
 		</div>
 	)
 }
