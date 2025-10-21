@@ -171,6 +171,7 @@ const initialEdges = [
 		target: '1-2',
 		// label: 'edge label',
 		type: 'smoothstep',
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e1-3',
@@ -180,6 +181,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e2-3',
@@ -189,6 +191,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e3-4',
@@ -198,6 +201,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e5-0-5-2',
@@ -207,6 +211,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e5-2-5-1',
@@ -216,6 +221,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e5-2',
@@ -225,6 +231,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e5-3-5-0',
@@ -234,6 +241,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e5-4-5-3',
@@ -243,6 +251,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e5-1-5-5',
@@ -252,6 +261,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 	{
 		id: 'e5-3-5-5',
@@ -261,6 +271,7 @@ const initialEdges = [
 		markerEnd: {
 			type: MarkerType.ArrowClosed,
 		},
+		style: { opacity: 0 },
 	},
 ]
 
@@ -268,6 +279,7 @@ export default function Flow() {
 	const [nodes, setNodes] = useState<Node[]>(initialNodes.map(node => ({ ...node, style: { ...node.style, opacity: 0 } })))
 	const [edges, setEdges] = useState(initialEdges)
 	const [visibleNodes, setVisibleNodes] = useState<string[]>([])
+	const [visibleEdges, setVisibleEdges] = useState<string[]>([])
 	const connection = useConnection()
 
 	useEffect(() => {
@@ -289,6 +301,27 @@ export default function Flow() {
 				setVisibleNodes(prev => [...prev, nodeId])
 			}, index * 500) // 500ms между появлениями узлов
 		})
+
+		// Порядок появления рёбер (на основе порядка узлов)
+		const edgeOrder = [
+			'e1-2',     // API Nist -> Entropy
+			'e1-3',     // Entropy -> Genesis Hash
+			'e5-0-5-2', // UUID Server -> extra_salt
+			'e5-2-5-1', // extra_salt -> UUID Client
+			'e5-2',     // extra_salt -> Genesis Hash
+			'e2-3',     // Genesis Hash -> Out
+			'e3-4',     // Out -> Entropy + UUID
+			'e5-3-5-0', // UUID Server hash -> UUID Server
+			'e5-4-5-3', // 5-4 -> UUID Server hash
+			'e5-1-5-5', // UUID Client -> Client
+			'e5-3-5-5', // Client -> UUID Server hash
+		]
+
+		edgeOrder.forEach((edgeId, index) => {
+			setTimeout(() => {
+				setVisibleEdges(prev => [...prev, edgeId])
+			}, (nodeOrder.length * 500) + (index * 300)) // После всех узлов, 300ms между рёбрами
+		})
 	}, [])
 
 	// Обновляем opacity узлов на основе visibleNodes
@@ -304,6 +337,20 @@ export default function Flow() {
 			}))
 		)
 	}, [visibleNodes])
+
+	// Обновляем opacity рёбер на основе visibleEdges (используем тот же паттерн что и для узлов)
+	useEffect(() => {
+		setEdges(prevEdges =>
+			prevEdges.map(edge => ({
+				...edge,
+				style: {
+					...edge.style,
+					opacity: visibleEdges.includes(edge.id) ? 1 : 0,
+					transition: 'opacity 0.5s ease-in-out'
+				}
+			}))
+		)
+	}, [visibleEdges])
 	const onMouseMove = useCallback(() => {
 		if (connection.inProgress) {
 			const { from, to } = connection

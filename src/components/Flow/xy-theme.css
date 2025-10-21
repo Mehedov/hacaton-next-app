@@ -258,3 +258,13 @@
 	margin-bottom: 3px;
 	display: inline-block;
 }
+
+/* Custom Edge Animation Styles - используем тот же паттерн что и для узлов */
+.react-flow__edge-path {
+	opacity: 0;
+	transition: opacity 0.5s ease-in-out;
+}
+
+.react-flow__edge.visible .react-flow__edge-path {
+	opacity: 1;
+}

@@ -34,12 +34,10 @@ export default function Page() {
 					>
 						{isGenerating ? 'Генерация...' : 'Генерировать'}
 					</Button>
-					{data && (
-						<Card title='Визуализация процесса' className='w-full'>
-							{/* <RNGGraph data={rngData} /> */}
-							<Flow />
-						</Card>
-					)}
+					<Card title='Визуализация процесса' className='w-full'>
+						{/* <RNGGraph data={rngData} /> */}
+						<Flow />
+					</Card>
 				</div>
 			</Card>
 		</div>
