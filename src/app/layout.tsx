@@ -3,6 +3,7 @@ import { ReactFlowProvider } from '@xyflow/react'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/providers/QueryProvider'
+import { ReduxProvider } from '@/providers/ReduxProvider'
 
 export const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -24,11 +25,13 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<ReactFlowProvider>
-					<QueryProvider>
-						<LayoutApp>{children}</LayoutApp>
-					</QueryProvider>
-				</ReactFlowProvider>
+				<ReduxProvider>
+					<ReactFlowProvider>
+						<QueryProvider>
+							<LayoutApp>{children}</LayoutApp>
+						</QueryProvider>
+					</ReactFlowProvider>
+				</ReduxProvider>
 			</body>
 		</html>
 	)
