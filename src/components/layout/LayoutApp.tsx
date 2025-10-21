@@ -1,7 +1,7 @@
 'use client'
 
-import { Layout, Menu, theme } from 'antd'
-import React, { PropsWithChildren } from 'react'
+import { Layout, theme } from 'antd'
+import { PropsWithChildren } from 'react'
 
 const { Header, Content } = Layout
 
@@ -17,16 +17,6 @@ const LayoutApp = ({ children }: PropsWithChildren) => {
 
 	return (
 		<Layout>
-			<Header style={{ display: 'flex', alignItems: 'center' }}>
-				<div className='demo-logo' />
-				<Menu
-					theme='dark'
-					mode='horizontal'
-					defaultSelectedKeys={['2']}
-					items={items}
-					style={{ flex: 1, minWidth: 0 }}
-				/>
-			</Header>
 			<Content className='min-h-screen' style={{ padding: '0 48px' }}>
 				<div
 					style={{
