@@ -1,10 +1,31 @@
-export interface IGenerateRandomBinary {
+export interface IGetRequestUUIDHash {
+	requestUUIDHash: string
+  jwtRequestUUIDToken:string
+}
+
+export interface IServerResponse {
 	inputLayer: {
-		entropySeed: string
-		executionUnixTime: number
+		clientUUID: string
+		interval: [number, number]
+		count: number
+		jwtServerUUIDToken: string
 	}
 	outputLayer: {
+		serverUUID: string
+		extraSalt: string
+		entropyData: {
+			data: string
+			url: string
+		}
 		genesisHash: string
-		fileUrl: string
+		outputValues: number[]
 	}
+}
+
+export interface IDataNode {
+	id: string
+	label: string
+	value: string | number | number[] | [number, number]
+	type: 'string' | 'number' | 'array' | 'interval'
+	description: string
 }

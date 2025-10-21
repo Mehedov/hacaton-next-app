@@ -1,8 +1,22 @@
-import { IGenerateRandomBinary } from '@/types/generate.type'
+import { IGetRequestUUIDHash, IServerResponse } from '@/types/generate.type'
 import axios from 'axios'
 
-export const generateRandomBinary = () => {
-	return axios.get<IGenerateRandomBinary>(
-		`${process.env.NEXT_PUBLIC_SERVER_URL + '/generateRandomBinary'}`
+export const getRequestUUIDHash = () => {
+	return axios.get<IGetRequestUUIDHash>(
+		`${process.env.NEXT_PUBLIC_SERVER_URL + '/getRequestUUIDHash'}`
+	)
+}
+
+export const generateRandomNumbers = (data: {
+	clientUUID: string
+	interval: [number, number]
+	count: number
+	jwtRequestUUIDToken: string
+}) => {
+	return axios.post<IServerResponse>(
+		`${
+			process.env.NEXT_PUBLIC_SERVER_URL + '/fullChain/generateRandomNumbers'
+		}`,
+		data
 	)
 }
