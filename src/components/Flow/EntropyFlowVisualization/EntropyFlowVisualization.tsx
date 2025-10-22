@@ -1,7 +1,7 @@
 'use client'
 
 import { IServerResponse } from '@/types/generate.type'
-import { Activity, Waves } from 'lucide-react'
+import { Waves } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 
 interface EntropyFlowVisualizationProps {
@@ -26,16 +26,29 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 	isActive,
 }) => {
 	const [particles, setParticles] = useState<Particle[]>([])
+	const [isVisible, setIsVisible] = useState(true)
+
+	// Отслеживание видимости страницы
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			setIsVisible(!document.hidden)
+		}
+
+		document.addEventListener('visibilitychange', handleVisibilityChange)
+		return () => {
+			document.removeEventListener('visibilitychange', handleVisibilityChange)
+		}
+	}, [])
 
 	// Создание частиц энтропии
 	const createEntropyParticles = useCallback(() => {
-		if (!data || !isActive) return
+		if (!data || !isActive || !isVisible) return
 
 		const newParticles: Particle[] = []
 		const entropyData = data.outputLayer.entropyData.data
 
 		// Создаем частицы на основе энтропийных данных (уменьшено количество)
-		for (let i = 0; i < 8; i++) {
+		for (let i = 0; i < 4; i++) {
 			const entropyChar = entropyData[i % entropyData.length]
 			const entropyValue = entropyChar.charCodeAt(0)
 
@@ -46,7 +59,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 				vx: ((entropyValue % 10) - 5) * 0.5,
 				vy: 2 + Math.random() * 3,
 				life: 0,
-				maxLife: 100 + (entropyValue % 50),
+				maxLife: 60 + (entropyValue % 30),
 				size: 2 + (entropyValue % 8),
 				color: `hsl(${entropyValue % 360}, 70%, 60%)`,
 			})
@@ -57,7 +70,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 
 	// Анимация частиц
 	useEffect(() => {
-		if (!isActive) {
+		if (!isActive || !isVisible) {
 			setParticles([])
 			return
 		}
@@ -83,7 +96,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 			requestAnimationFrame(animate)
 		}
 
-		const interval = setInterval(createEntropyParticles, 300)
+		const interval = setInterval(createEntropyParticles, 500)
 		const frameId = requestAnimationFrame(animate)
 
 		return () => {
@@ -92,14 +105,14 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 				cancelAnimationFrame(frameId)
 			}
 		}
-	}, [isActive, data, createEntropyParticles])
+	}, [isActive, isVisible, data, createEntropyParticles])
 
 	// Генерация волн энтропии
 	const generateEntropyWaves = () => {
-		if (!data || !isActive) return null
+		if (!data || !isActive || !isVisible) return null
 
 		const entropyData = data.outputLayer.entropyData.data
-		const waveCount = Math.min(entropyData.length, 20)
+		const waveCount = Math.min(entropyData.length, 10)
 
 		return (
 			<div className='absolute rounded-2xl inset-0 overflow-hidden pointer-events-none'>
@@ -133,7 +146,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 
 							{/* Частицы-искры */}
 							<div className='absolute top-0 left-1/2 transform -translate-x-1/2'>
-								{[...Array(3)].map((_, sparkIndex) => (
+								{[...Array(2)].map((_, sparkIndex) => (
 									<div
 										key={sparkIndex}
 										className='absolute w-1 h-1 bg-yellow-300 rounded-full animate-ping'
@@ -164,9 +177,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 					<Waves className='w-5 h-5' />
 					<span>Поток энтропии</span>
 				</h4>
-				<p className='text-gray-300 text-sm'>
-					Визуализация энтропийных данных от NIST
-				</p>
+				<p className='text-gray-300 text-sm'>Визуализация энтропийных данных</p>
 			</div>
 
 			{/* Энтропийные волны */}
@@ -192,14 +203,6 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 			</div>
 
 			{/* Индикатор источника энтропии */}
-			<div className='absolute bottom-4 right-4'>
-				<div className='bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg text-sm'>
-					<div className='flex items-center gap-2'>
-						<Activity className='w-4 h-4 text-green-400' />
-						<span>Источник: {data.outputLayer.entropyData.url}</span>
-					</div>
-				</div>
-			</div>
 
 			{/* CSS для анимации волн */}
 			<style jsx>{`

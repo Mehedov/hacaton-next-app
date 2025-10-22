@@ -21,11 +21,13 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 
 export function GenerateView() {
 	const dispatch = useAppDispatch()
 	const { min, max, count } = useAppSelector(state => state.interval)
+	const router = useRouter()
 	const [isGenerating, setIsGenerating] = useState(false)
 	const [rngData, setRngData] = useState<IServerResponse | null>(null)
 	const [currentClientUUID, setCurrentClientUUID] = useState<string>('')
@@ -268,17 +270,16 @@ export function GenerateView() {
 
 								{/* Кнопка перехода к визуализации */}
 								<div className='text-center mt-6'>
-									<Link
-										href={`/visualization?data=${encodeURIComponent(
-											JSON.stringify(rngData)
-										)}`}
+									<button
+										onClick={() => {
+											localStorage.setItem('visualizationData', JSON.stringify(rngData))
+											router.push('/visualization')
+										}}
 										className='inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 gap-2'
 									>
-										<ExternalLink className='w-6 h-6 text-white' />
-										<span className='text-white'>
-											Посмотреть визуализацию процесса
-										</span>
-									</Link>
+										<ExternalLink className='w-6 h-6' />
+										<span>Посмотреть визуализацию процесса</span>
+									</button>
 								</div>
 							</div>
 						)}

@@ -14,28 +14,29 @@ import {
 	Theater,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 
 function VisualizationContent() {
-	const searchParams = useSearchParams()
 	const [data, setData] = useState<IServerResponse | null>(null)
 	const [isAnimationPlaying, setIsAnimationPlaying] = useState(false)
 	const [currentStep, setCurrentStep] = useState(0)
 	const [showTooltips, setShowTooltips] = useState(false)
 
-	// Получаем данные из URL параметров
+	// Получаем данные из localStorage
 	useEffect(() => {
-		const dataParam = searchParams.get('data')
+		const dataParam = localStorage.getItem('visualizationData')
 		if (dataParam) {
 			try {
-				const parsedData = JSON.parse(decodeURIComponent(dataParam))
+				const parsedData = JSON.parse(dataParam)
 				setData(parsedData)
+				// Очищаем localStorage после использования
+				localStorage.removeItem('visualizationData')
 			} catch (error) {
 				console.error('Ошибка парсинга данных:', error)
 			}
 		}
-	}, [searchParams])
+	}, [])
 
 	const handleToggleAnimation = () => {
 		setIsAnimationPlaying(!isAnimationPlaying)
