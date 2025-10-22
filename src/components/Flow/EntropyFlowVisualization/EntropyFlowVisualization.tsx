@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useState, useCallback } from 'react'
 import { IServerResponse } from '@/types/generate.type'
-import { Waves, Activity } from 'lucide-react'
+import { Activity, Waves } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 interface EntropyFlowVisualizationProps {
 	data: IServerResponse | null
@@ -43,7 +43,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 				id: Date.now() + i,
 				x: Math.random() * 100,
 				y: -10,
-				vx: (entropyValue % 10 - 5) * 0.5,
+				vx: ((entropyValue % 10) - 5) * 0.5,
 				vy: 2 + Math.random() * 3,
 				life: 0,
 				maxLife: 100 + (entropyValue % 50),
@@ -73,7 +73,9 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 						vx: particle.vx * 0.99, // Замедление
 						vy: particle.vy * 0.98,
 					}))
-					.filter(particle => particle.life < particle.maxLife && particle.y < 110)
+					.filter(
+						particle => particle.life < particle.maxLife && particle.y < 110
+					)
 
 				return updatedParticles
 			})
@@ -100,7 +102,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 		const waveCount = Math.min(entropyData.length, 20)
 
 		return (
-			<div className='absolute inset-0 overflow-hidden pointer-events-none'>
+			<div className='absolute rounded-2xl inset-0 overflow-hidden pointer-events-none'>
 				{[...Array(waveCount)].map((_, index) => {
 					const entropyChar = entropyData[index]
 					const entropyValue = entropyChar.charCodeAt(0)
@@ -123,7 +125,9 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 										${`hsl(${entropyValue % 360}, 70%, 50%)`}, 
 										${`hsl(${(entropyValue + 60) % 360}, 70%, 60%)`}, 
 										${`hsl(${(entropyValue + 120) % 360}, 70%, 50%)`})`,
-									boxShadow: `0 0 20px ${`hsl(${entropyValue % 360}, 70%, 50%)`}`,
+									boxShadow: `0 0 20px ${`hsl(${
+										entropyValue % 360
+									}, 70%, 50%)`}`,
 								}}
 							></div>
 
@@ -153,11 +157,11 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 	}
 
 	return (
-		<div className='relative w-full h-64 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent overflow-hidden'>
+		<div className='relative w-full h-64 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent overflow-hidden rounded-b-[18px]'>
 			{/* Заголовок */}
 			<div className='absolute top-4 left-4 z-10'>
 				<h4 className='text-white text-lg font-bold mb-1 flex items-center gap-2'>
-					<Waves className="w-5 h-5" />
+					<Waves className='w-5 h-5' />
 					<span>Поток энтропии</span>
 				</h4>
 				<p className='text-gray-300 text-sm'>
@@ -191,7 +195,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 			<div className='absolute bottom-4 right-4'>
 				<div className='bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg text-sm'>
 					<div className='flex items-center gap-2'>
-						<Activity className="w-4 h-4 text-green-400" />
+						<Activity className='w-4 h-4 text-green-400' />
 						<span>Источник: {data.outputLayer.entropyData.url}</span>
 					</div>
 				</div>

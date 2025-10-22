@@ -16,18 +16,19 @@ import {
 	ExternalLink,
 	Save,
 	Settings,
-	Shield,
 	Sparkles,
 	Zap,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 export function GenerateView() {
 	const dispatch = useAppDispatch()
 	const { min, max, count } = useAppSelector(state => state.interval)
 	const [isGenerating, setIsGenerating] = useState(false)
 	const [rngData, setRngData] = useState<IServerResponse | null>(null)
+	const [currentClientUUID, setCurrentClientUUID] = useState<string>('')
 	const [minInput, setMinInput] = useState(min)
 	const [maxInput, setMaxInput] = useState(max)
 	const [countInput, setCountInput] = useState(count)
@@ -49,20 +50,39 @@ export function GenerateView() {
 		setCountInput(count)
 	}, [min, max, count])
 
+	// Генерируем clientUUID при загрузке страницы для первой генерации
+	useEffect(() => {
+		const clientUUID = uuidv4()
+		setCurrentClientUUID(clientUUID)
+	}, [])
+
 	const handleSaveInterval = () => {
 		dispatch(setInterval({ min: minInput, max: maxInput }))
 		dispatch(setCount(countInput))
 	}
 
 	const generateNumber = async () => {
-		if (!data) return
+		if (!data || !currentClientUUID) return
 		setIsGenerating(true)
 		try {
+			// Используем существующий clientUUID для первой генерации, затем генерируем новый
+			const clientUUID = currentClientUUID
+			// Генерируем новый UUID для следующих генераций
+			const newClientUUID = uuidv4()
+			setCurrentClientUUID(newClientUUID)
+
+			// Получаем токен из кук
+			const jwtToken = Cookies.get('jwtRequestUUIDToken')
+			if (!jwtToken) {
+				console.error('JWT token not found in cookies')
+				return
+			}
+
 			const response = await generateRandomNumbers({
-				clientUUID: data.data.requestUUIDHash,
+				clientUUID: clientUUID,
 				interval: [min, max],
 				count: count,
-				jwtRequestUUIDToken: data.data.jwtRequestUUIDToken,
+				jwtRequestUUIDToken: jwtToken,
 			})
 			setRngData(response.data)
 		} catch (error) {
@@ -81,9 +101,29 @@ export function GenerateView() {
 						<Dices className='w-12 h-12 text-blue-600' />
 						<span>Генератор случайных чисел</span>
 					</h1>
-					<p className='text-xl text-gray-600'>
+					<p className='text-xl text-gray-600 mb-6'>
 						Создайте случайные числа с криптографической защитой
 					</p>
+
+					{/* Блок Client UUID в формате кода */}
+					<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-w-2xl mx-auto border border-gray-700'>
+						<div className='text-gray-400 mb-2'>
+							{/* Current Client UUID */}
+						</div>
+						<div className='text-green-300'>
+							Client UUID:{' '}
+							<span className='text-yellow-300 break-all'>
+								{currentClientUUID || 'Генерируется при загрузке...'}
+							</span>
+						</div>
+
+						<div className='text-green-300'>
+							Status:{' '}
+							<span className='text-purple-300'>
+								{currentClientUUID ? 'Ready for request' : 'Waiting...'}
+							</span>
+						</div>
+					</div>
 				</div>
 
 				{/* Карточка с формой */}
@@ -121,7 +161,7 @@ export function GenerateView() {
 										onChange={e => setMaxInput(Number(e.target.value))}
 										min={10}
 										max={100}
-										className='text-center text-lg h-12'
+										className='text-center text-xl h-12'
 									/>
 								</div>
 								<div className='text-center'>
@@ -153,7 +193,9 @@ export function GenerateView() {
 						<div className='text-center'>
 							<Button
 								onClick={generateNumber}
-								disabled={isGenerating || !data}
+								disabled={
+									isGenerating || !data || !Cookies.get('jwtRequestUUIDToken')
+								}
 								size='large'
 								className='px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200'
 							>
@@ -232,28 +274,16 @@ export function GenerateView() {
 										)}`}
 										className='inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 gap-2'
 									>
-										<ExternalLink className='w-6 h-6' />
-										<span>Посмотреть визуализацию процесса</span>
+										<ExternalLink className='w-6 h-6 text-white' />
+										<span className='text-white'>
+											Посмотреть визуализацию процесса
+										</span>
 									</Link>
 								</div>
 							</div>
 						)}
 					</div>
 				</Card>
-
-				{/* Информация о системе */}
-				<div className='mt-12 text-center'>
-					<div className='bg-white/60 backdrop-blur-sm rounded-xl p-6 shadow-lg'>
-						<h3 className='text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2'>
-							<Shield className='w-6 h-6 text-green-600' />
-							<span>Криптографическая безопасность</span>
-						</h3>
-						<p className='text-gray-600'>
-							Генерация использует энтропию от NIST API, блокчейн-хэши и
-							криптографические алгоритмы
-						</p>
-					</div>
-				</div>
 			</div>
 		</div>
 	)
