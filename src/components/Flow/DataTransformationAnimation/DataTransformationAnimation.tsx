@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { IServerResponse } from '@/types/generate.type'
+import { ArrowRightLeft, Upload, Settings, Download, Loader2, CheckCircle } from 'lucide-react'
 
 interface DataTransformationAnimationProps {
 	data: IServerResponse | null
@@ -141,8 +142,9 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 		<div className='relative w-full h-80 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200 overflow-hidden'>
 			{/* Заголовок */}
 			<div className='absolute top-4 left-4 z-10'>
-				<h4 className='text-gray-800 text-lg font-bold mb-1'>
-					🔄 Трансформация данных
+				<h4 className='text-gray-800 text-lg font-bold mb-1 flex items-center gap-2'>
+					<ArrowRightLeft className="w-6 h-6" />
+					<span>Трансформация данных</span>
 				</h4>
 				<p className='text-gray-600 text-sm'>
 					Фаза: {getPhaseDescription()}
@@ -153,22 +155,25 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 			<div className='absolute inset-0'>
 				{/* Входная зона */}
 				<div className='absolute top-4 left-4 right-4 h-16 bg-blue-100 rounded-lg border-2 border-blue-300 border-dashed'>
-					<div className='flex items-center justify-center h-full text-blue-600 font-semibold'>
-						📥 Входные данные
+					<div className='flex items-center justify-center h-full text-blue-600 font-semibold gap-2'>
+						<Upload className="w-5 h-5" />
+						<span>Входные данные</span>
 					</div>
 				</div>
 
 				{/* Зона обработки */}
 				<div className='absolute top-24 left-4 right-4 h-16 bg-purple-100 rounded-lg border-2 border-purple-300 border-dashed'>
-					<div className='flex items-center justify-center h-full text-purple-600 font-semibold'>
-						⚙️ Обработка
+					<div className='flex items-center justify-center h-full text-purple-600 font-semibold gap-2'>
+						<Settings className="w-5 h-5" />
+						<span>Обработка</span>
 					</div>
 				</div>
 
 				{/* Выходная зона */}
 				<div className='absolute bottom-4 left-4 right-4 h-16 bg-green-100 rounded-lg border-2 border-green-300 border-dashed'>
-					<div className='flex items-center justify-center h-full text-green-600 font-semibold'>
-						📤 Результат
+					<div className='flex items-center justify-center h-full text-green-600 font-semibold gap-2'>
+						<Download className="w-5 h-5" />
+						<span>Результат</span>
 					</div>
 				</div>
 			</div>
@@ -267,8 +272,12 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 			<div className='absolute bottom-4 right-4'>
 				<div className='bg-white bg-opacity-90 rounded-lg p-3 shadow-lg'>
 					<div className='flex items-center gap-2 text-sm text-gray-700'>
-						<div className='w-3 h-3 bg-blue-500 rounded-full animate-pulse'></div>
-						<span>Этап {currentStep + 1}/6</span>
+						{isAnimating ? (
+							<Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+						) : (
+							<CheckCircle className="w-4 h-4 text-green-500" />
+						)}
+						<span>{isAnimating ? `Этап ${currentStep + 1}/6` : 'Процесс завершен'}</span>
 					</div>
 				</div>
 			</div>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { IServerResponse } from '@/types/generate.type'
+import { Waves, Activity, ExternalLink } from 'lucide-react'
 
 interface EntropyFlowVisualizationProps {
 	data: IServerResponse | null
@@ -34,8 +35,8 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 		const newParticles: Particle[] = []
 		const entropyData = data.outputLayer.entropyData.data
 
-		// Создаем частицы на основе энтропийных данных
-		for (let i = 0; i < 20; i++) {
+		// Создаем частицы на основе энтропийных данных (уменьшено количество)
+		for (let i = 0; i < 8; i++) {
 			const entropyChar = entropyData[i % entropyData.length]
 			const entropyValue = entropyChar.charCodeAt(0)
 
@@ -99,7 +100,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 		if (!data || !isActive) return null
 
 		const entropyData = data.outputLayer.entropyData.data
-		const waveCount = Math.min(entropyData.length, 50)
+		const waveCount = Math.min(entropyData.length, 20)
 
 		return (
 			<div className='absolute inset-0 overflow-hidden pointer-events-none'>
@@ -131,7 +132,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 
 							{/* Частицы-искры */}
 							<div className='absolute top-0 left-1/2 transform -translate-x-1/2'>
-								{[...Array(5)].map((_, sparkIndex) => (
+								{[...Array(3)].map((_, sparkIndex) => (
 									<div
 										key={sparkIndex}
 										className='absolute w-1 h-1 bg-yellow-300 rounded-full animate-ping'
@@ -155,10 +156,13 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 	}
 
 	return (
-		<div className='relative w-full h-64 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent rounded-lg overflow-hidden border border-gray-700'>
+		<div className='relative w-full h-64 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent overflow-hidden'>
 			{/* Заголовок */}
 			<div className='absolute top-4 left-4 z-10'>
-				<h4 className='text-white text-lg font-bold mb-1'>🌊 Поток энтропии</h4>
+				<h4 className='text-white text-lg font-bold mb-1 flex items-center gap-2'>
+					<Waves className="w-5 h-5" />
+					<span>Поток энтропии</span>
+				</h4>
 				<p className='text-gray-300 text-sm'>
 					Визуализация энтропийных данных от NIST
 				</p>
@@ -190,7 +194,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 			<div className='absolute bottom-4 right-4'>
 				<div className='bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg text-sm'>
 					<div className='flex items-center gap-2'>
-						<div className='w-3 h-3 bg-green-400 rounded-full animate-pulse'></div>
+						<Activity className="w-4 h-4 text-green-400" />
 						<span>Источник: {data.outputLayer.entropyData.url}</span>
 					</div>
 				</div>

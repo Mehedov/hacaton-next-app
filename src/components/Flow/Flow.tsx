@@ -13,7 +13,6 @@ import { useCallback, useEffect, useState } from 'react'
 import ServerDataVisualization from './ServerDataVisualization/ServerDataVisualization'
 import StepByStepVisualization from './StepByStepVisualization/StepByStepVisualization'
 import EntropyFlowVisualization from './EntropyFlowVisualization/EntropyFlowVisualization'
-import DataTransformationAnimation from './DataTransformationAnimation/DataTransformationAnimation'
 import InteractiveTooltips from './InteractiveTooltips/InteractiveTooltips'
 import SoundEffects from './SoundEffects/SoundEffects'
 
@@ -264,21 +263,10 @@ export default function Flow({ data }: FlowProps) {
 						</div>
 
 						{/* Entropy Flow Visualization */}
-						<div className='bg-white rounded-xl shadow-lg p-4'>
-							<EntropyFlowVisualization
-								data={serverData}
-								isActive={isAnimationPlaying}
-							/>
-						</div>
-
-						{/* Data Transformation Animation */}
-						<div className='bg-white rounded-xl shadow-lg p-4'>
-							<DataTransformationAnimation
-								data={serverData}
-								currentStep={currentAnimationStep}
-								isAnimating={isAnimationPlaying}
-							/>
-						</div>
+						<EntropyFlowVisualization
+							data={serverData}
+							isActive={isAnimationPlaying}
+						/>
 
 						{/* Interactive Tooltips */}
 						<div className='bg-white rounded-xl shadow-lg p-4'>
