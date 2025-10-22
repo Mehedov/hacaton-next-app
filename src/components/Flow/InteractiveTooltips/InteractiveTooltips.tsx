@@ -57,7 +57,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'GET запрос к https://enthropy.bgitu-compass.ru/getEntropyHash возвращает entropyHash (хэш данных энтропии) и cryptedEntropy (зашифрованная энтропия). Хэш позволяет верифицировать подлинность данных энтропии, а зашифрованная энтропия идентифицирует конкретный набор данных для генерации.',
 				examples: [
 					'GET /getEntropyHash',
-					'{"entropyHash": "a1b2c3...", "cryptedEntropy": "def456..."}',
+					'{"entropyHash": "a1b2c3...", "ecryptedEntropy": "def456..."}',
 					'Верификация подлинности энтропии',
 					'Идентификация источника энтропии',
 				],
@@ -219,7 +219,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 									<span>Технические детали:</span>
 								</h5>
 
-								<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+								<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700 text-left'>
 									<div className='text-gray-400 mb-2'>
 										{/* Technical Implementation Details */}
 									</div>
@@ -454,7 +454,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 									<div
 										key={tooltip.id}
 										onClick={() => onStepChange?.(index)}
-										className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+										className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 text-left ${
 											index === currentStep
 												? 'border-blue-500 bg-blue-50'
 												: 'border-gray-200 bg-white hover:border-gray-300'

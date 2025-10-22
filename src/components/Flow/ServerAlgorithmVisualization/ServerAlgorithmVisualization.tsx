@@ -147,7 +147,7 @@ const ServerAlgorithmVisualization: React.FC<
 								<div className='space-y-1'>
 									<div className='text-xs text-purple-700'>Приватный ключ</div>
 									<div className='text-xs text-purple-700'>
-										cryptedEntropy:{' '}
+										encryptedEntropy:{' '}
 										{data.inputLayer.encryptedEntropy.substring(0, 12)}...
 									</div>
 									<div className='text-xs text-purple-700'>→ entropyId </div>
