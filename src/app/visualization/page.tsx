@@ -1,14 +1,12 @@
 'use client'
 
 import EntropyFlowVisualization from '@/components/Flow/EntropyFlowVisualization/EntropyFlowVisualization'
-import InteractiveTooltips from '@/components/Flow/InteractiveTooltips/InteractiveTooltips'
 import SoundEffects from '@/components/Flow/SoundEffects/SoundEffects'
 import StepByStepVisualization from '@/components/Flow/StepByStepVisualization/StepByStepVisualization'
 import { IServerResponse } from '@/types/generate.type'
 import {
 	CheckCircle,
 	Database,
-	HelpCircle,
 	Home,
 	Link as LinkIcon,
 	Theater,
@@ -237,39 +235,6 @@ function VisualizationContent() {
 						onTogglePlay={handleToggleAnimation}
 					/>
 				</div>
-
-				<button
-					onClick={() => setShowTooltips(!showTooltips)}
-					className={`w-full text-lg flex items-center justify-center cursor-pointer gap-1.5 px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-						showTooltips
-							? 'bg-purple-500 hover:bg-purple-600 text-white'
-							: 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-					}`}
-				>
-					{showTooltips ? (
-						<>
-							<span>Скрыть обьяснение</span>
-							<HelpCircle className='w-5 h-5' />
-						</>
-					) : (
-						<>
-							<HelpCircle className='w-5 h-5' />
-							<span>Показать обьяснение</span>
-						</>
-					)}
-				</button>
-
-				{/* Интерактивные подсказки */}
-				{showTooltips && (
-					<div className='bg-white rounded-2xl shadow-lg p-8 border-2 border-purple-200'>
-						<InteractiveTooltips
-							data={data}
-							currentStep={currentStep}
-							isVisible={showTooltips}
-							onStepChange={handleStepChange}
-						/>
-					</div>
-				)}
 
 				{/* Звуковые эффекты */}
 				<SoundEffects

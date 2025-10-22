@@ -106,6 +106,8 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 	}, [data])
 
 	useEffect(() => {
+		// Запускаем анимацию только если isPlaying === true
+		// Это гарантирует, что анимация не запустится при клике на этапы
 		if (!isPlaying || steps.length === 0) return
 
 		const step = steps[currentStep]
@@ -144,23 +146,17 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 	}, [showInteractiveTooltips])
 
 	const handleStepClick = (stepIndex: number) => {
-		// Если анимация завершена, просто переключаемся на выбранный этап для просмотра
-		if (isCompleted) {
-			setCurrentStep(stepIndex)
-			return
-		}
+		// Всегда просто переключаемся на выбранный этап для просмотра
+		// Воспроизведение должно запускаться только кнопками "Воспроизвести" или "Повторить"
 
-		// Если анимация активна или не начиналась, сбрасываем и начинаем заново
-		setIsCompleted(false)
-		setCurrentStep(stepIndex)
+		// Гарантированно останавливаем любую активную анимацию
 		setIsAnimating(false)
 
-		// Если анимация была запущена, перезапускаем её
-		if (isPlaying) {
-			setTimeout(() => {
-				onTogglePlay()
-			}, 100)
-		}
+		// Переключаемся на выбранный этап
+		setCurrentStep(stepIndex)
+
+		// Сбрасываем состояние завершения, если оно было установлено
+		setIsCompleted(false)
 	}
 
 	const getProgressPercentage = () => {
