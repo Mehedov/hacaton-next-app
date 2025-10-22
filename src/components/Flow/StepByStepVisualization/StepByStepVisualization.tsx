@@ -245,28 +245,140 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 							</div>
 
 							{/* Data Visualization */}
-							<div className='bg-white rounded-lg p-4 border'>
-								<h5 className='font-semibold text-gray-700 mb-2'>Данные:</h5>
-								<div className='text-sm font-mono text-gray-600 break-all'>
-									{steps[currentStep]?.id === 'final-output' ? (
-										<div className='flex flex-wrap gap-2'>
-											{(steps[currentStep]?.data as number[]).map(
-												(val, idx) => (
-													<span
-														key={idx}
-														className='bg-green-100 text-green-800 px-2 py-1 rounded-full animate-pulse'
-													>
-														{val}
-													</span>
-												)
-											)}
-										</div>
-									) : (
-										<span className='block'>
-											{String(steps[currentStep]?.data).substring(0, 50)}...
-										</span>
-									)}
-								</div>
+							<div className='space-y-4'>
+								<h5 className='font-semibold text-gray-700 mb-3 flex items-center gap-2'>
+									<div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+									Технические данные процесса:
+								</h5>
+
+								{(() => {
+									const step = steps[currentStep]
+									if (!step) return null
+
+									switch (step.id) {
+										case 'entropy-collection':
+											const entropyData = step.data as { url?: string; data?: string; timestamp?: number }
+											return (
+												<div className='space-y-3'>
+													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+														<div className='text-gray-400 mb-2'>{/* NIST Randomness Beacon API Response */}</div>
+														<div className='text-green-300'>URL: <span className='text-yellow-300'>{String(entropyData?.url || 'https://beacon.nist.gov/rest/record/')}</span></div>
+														<div className='text-green-300'>Data: <span className='text-blue-300 break-all'>{entropyData?.data || 'random_entropy_string_from_nist'}</span></div>
+														<div className='text-green-300'>Timestamp: <span className='text-purple-300'>{String(entropyData?.timestamp || Date.now())}</span></div>
+													</div>
+													<div className='bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400'>
+														<p className='text-sm text-blue-800'>
+															<strong>Процесс:</strong> Получение энтропийных данных от авторитетного источника NIST для обеспечения криптографической случайности.
+														</p>
+													</div>
+												</div>
+											)
+
+										case 'genesis-hash':
+											return (
+												<div className='space-y-3'>
+													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+														<div className='text-gray-400 mb-2'>{/* Genesis Hash (Блокчейн) */}</div>
+														<div className='text-green-300'>Hash: <span className='text-yellow-300 break-all'>{String(step.data).substring(0, 32)}...</span></div>
+														<div className='text-green-300'>Algorithm: <span className='text-purple-300'>SHA-256</span></div>
+														<div className='text-green-300'>Block: <span className='text-blue-300'>#0 (Genesis)</span></div>
+													</div>
+													<div className='bg-purple-50 p-3 rounded-lg border-l-4 border-purple-400'>
+														<p className='text-sm text-purple-800'>
+															<strong>Процесс:</strong> Использование неизменяемого хэша первого блока для дополнительного источника энтропии.
+														</p>
+													</div>
+												</div>
+											)
+
+										case 'uuid-generation':
+											const uuidData = step.data as { server?: string; client?: string }
+											return (
+												<div className='space-y-3'>
+													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+														<div className='text-gray-400 mb-2'>{/* UUID Generation (v4) */}</div>
+														<div className='text-green-300'>Server UUID: <span className='text-yellow-300 break-all'>{uuidData?.server || '550e8400-e29b-41d4-a716-446655440000'}</span></div>
+														<div className='text-green-300'>Client UUID: <span className='text-blue-300 break-all'>{uuidData?.client || '123e4567-e89b-12d3-a456-426614174000'}</span></div>
+														<div className='text-green-300'>Version: <span className='text-purple-300'>4 (Random)</span></div>
+													</div>
+													<div className='bg-green-50 p-3 rounded-lg border-l-4 border-green-400'>
+														<p className='text-sm text-green-800'>
+															<strong>Процесс:</strong> Генерация уникальных идентификаторов для сервера и клиента с использованием криптографически сильного RNG.
+														</p>
+													</div>
+												</div>
+											)
+
+										case 'salt-addition':
+											return (
+												<div className='space-y-3'>
+													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+														<div className='text-gray-400 mb-2'>{/* Cryptographic Salt */}</div>
+														<div className='text-green-300'>Salt: <span className='text-yellow-300 break-all'>{String(step.data).substring(0, 32)}...</span></div>
+														<div className='text-green-300'>Length: <span className='text-purple-300'>{String(step.data).length} characters</span></div>
+														<div className='text-green-300'>Entropy: <span className='text-blue-300'>High (Random)</span></div>
+													</div>
+													<div className='bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400'>
+														<p className='text-sm text-yellow-800'>
+															<strong>Процесс:</strong> Добавление случайной соли для предотвращения атак по словарю и rainbow table.
+														</p>
+													</div>
+												</div>
+											)
+
+										case 'hash-combination':
+											return (
+												<div className='space-y-3'>
+													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+														<div className='text-gray-400 mb-2'>{/* Hash Combination Process */}</div>
+														<div className='text-green-300'>Function: <span className='text-purple-300'>SHA-256</span></div>
+														<div className='text-green-300'>Input: <span className='text-blue-300'>Entropy + Genesis + UUIDs + Salt</span></div>
+														<div className='text-green-300'>Output: <span className='text-yellow-300'>64-character hex string</span></div>
+														<div className='text-green-300'>Avalanche: <span className='text-red-300'>Maximum sensitivity</span></div>
+													</div>
+													<div className='bg-cyan-50 p-3 rounded-lg border-l-4 border-cyan-400'>
+														<p className='text-sm text-cyan-800'>
+															<strong>Процесс:</strong> Криптографическое комбинирование всех источников энтропии с использованием хэш-функции SHA-256.
+														</p>
+													</div>
+												</div>
+											)
+
+										case 'final-output':
+											return (
+												<div className='space-y-3'>
+													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+														<div className='text-gray-400 mb-2'>{/* Final Random Numbers */}</div>
+														<div className='text-green-300'>Range: <span className='text-yellow-300'>[{data?.inputLayer.interval[0]}, {data?.inputLayer.interval[1]}]</span></div>
+														<div className='text-green-300'>Count: <span className='text-purple-300'>{data?.inputLayer.count} numbers</span></div>
+														<div className='text-green-300'>Seed: <span className='text-blue-300'>Combined entropy hash</span></div>
+														<div className='flex flex-wrap gap-1 mt-2'>
+															{(step.data as number[]).slice(0, 8).map((val, idx) => (
+																<span key={idx} className='bg-green-600 text-white px-2 py-1 rounded text-xs animate-pulse'>
+																	{val}
+																</span>
+															))}
+															{(step.data as number[]).length > 8 && (
+																<span className='text-gray-400 text-xs'>... +{(step.data as number[]).length - 8} more</span>
+															)}
+														</div>
+													</div>
+													<div className='bg-green-50 p-3 rounded-lg border-l-4 border-green-400'>
+														<p className='text-sm text-green-800'>
+															<strong>Процесс:</strong> Генерация финальных случайных чисел в указанном диапазоне с использованием комбинированной энтропии как seed.
+														</p>
+													</div>
+												</div>
+											)
+
+										default:
+											return (
+												<div className='bg-gray-100 p-4 rounded-lg border'>
+													<p className='text-sm text-gray-600'>Данные для этого этапа недоступны</p>
+												</div>
+											)
+									}
+								})()}
 							</div>
 
 							{/* Animated Particles */}
