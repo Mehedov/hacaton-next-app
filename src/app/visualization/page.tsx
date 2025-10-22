@@ -71,7 +71,7 @@ function VisualizationContent() {
 								<span>Визуализация процесса генерации</span>
 							</h1>
 							<p className='text-gray-600 mt-1'>
-								Пошагоое объяснение алгоритма случайных чисел
+								Пошаговое объяснение алгоритма случайных чисел
 							</p>
 						</div>
 						<div className='flex gap-3'>
@@ -248,13 +248,13 @@ function VisualizationContent() {
 				>
 					{showTooltips ? (
 						<>
-							<span>Скрыть подсказки</span>
+							<span>Скрыть обьяснение</span>
 							<HelpCircle className='w-5 h-5' />
 						</>
 					) : (
 						<>
 							<HelpCircle className='w-5 h-5' />
-							<span>Показать подсказки</span>
+							<span>Показать обьяснение</span>
 						</>
 					)}
 				</button>

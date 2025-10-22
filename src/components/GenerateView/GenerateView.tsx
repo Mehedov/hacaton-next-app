@@ -3,14 +3,16 @@
 import {
 	generateRandomNumbers,
 	getRequestUUIDHash,
+	analyzeRandomNumbers,
 } from '@/service/generate.service'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setCount, setInterval } from '@/store/intervalSlice'
-import { IGetRequestUUIDHash, IServerResponse } from '@/types/generate.type'
+import { IGetRequestUUIDHash, IServerResponse, IAnalysisResponse } from '@/types/generate.type'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Card, Input } from 'antd'
 import Cookies from 'js-cookie'
 import {
+	BarChart3,
 	CheckCircle,
 	Dices,
 	ExternalLink,
@@ -29,6 +31,8 @@ export function GenerateView() {
 	const router = useRouter()
 	const [isGenerating, setIsGenerating] = useState(false)
 	const [rngData, setRngData] = useState<IServerResponse | null>(null)
+	const [analysisData, setAnalysisData] = useState<IAnalysisResponse | null>(null)
+	const [isAnalyzing, setIsAnalyzing] = useState(false)
 	const [currentClientUUID, setCurrentClientUUID] = useState<string>('')
 	const [minInput, setMinInput] = useState(min)
 	const [maxInput, setMaxInput] = useState(max)
@@ -86,6 +90,22 @@ export function GenerateView() {
 				jwtRequestUUIDToken: jwtToken,
 			})
 			setRngData(response.data)
+
+			// Автоматический запуск анализа сгенерированных чисел
+			if (response.data.outputLayer.outputValues.length >= 50) {
+				setIsAnalyzing(true)
+				try {
+					const analysisResponse = await analyzeRandomNumbers({
+						numbers: response.data.outputLayer.outputValues,
+						k_intervals: Math.min(100, Math.floor(response.data.outputLayer.outputValues.length / 10))
+					})
+					setAnalysisData(analysisResponse.data as IAnalysisResponse)
+				} catch (error) {
+					console.error('Error analyzing numbers:', error)
+				} finally {
+					setIsAnalyzing(false)
+				}
+			}
 		} catch (error) {
 			console.error('Error generating numbers:', error)
 		} finally {
@@ -285,6 +305,103 @@ export function GenerateView() {
 									</div>
 								</div>
 
+								{/* Результаты анализа */}
+								{isAnalyzing && (
+									<div className='bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-blue-400/30 rounded-xl p-6 mb-6'>
+										<div className='flex items-center justify-center gap-3 text-blue-300'>
+											<div className='animate-spin rounded-full h-6 w-6 border-b-2 border-blue-300'></div>
+											<span className='font-semibold'>Выполняется анализ случайности...</span>
+										</div>
+									</div>
+								)}
+
+								{analysisData && (
+									<div className='bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 border border-blue-400/30 rounded-xl p-6 mb-6 shadow-2xl'>
+										{/* Заголовок анализа */}
+										<div className='text-center mb-6'>
+											<h4 className='text-2xl font-bold mb-2'>
+												<span className='bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent'>
+													Результаты статистического анализа
+												</span>
+											</h4>
+											<div className='w-24 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto rounded-full'></div>
+										</div>
+
+										{/* Общая информация */}
+										<div className='bg-slate-800/50 rounded-lg p-4 mb-6 border border-slate-600/30'>
+											<div className='grid grid-cols-2 gap-4 text-sm'>
+												<div className='text-center'>
+													<div className='text-gray-400'>Всего чисел</div>
+													<div className='text-2xl font-bold text-cyan-400'>{analysisData.total_numbers}</div>
+												</div>
+												<div className='text-center'>
+													<div className='text-gray-400'>Интервалов</div>
+													<div className='text-2xl font-bold text-purple-400'>{analysisData.k_intervals_used}</div>
+												</div>
+											</div>
+											<div className='mt-4 p-3 bg-slate-700/50 rounded border border-slate-600/50'>
+												<p className='text-sm text-gray-300 text-center'>
+													<strong>Заключение:</strong> {analysisData.summary}
+												</p>
+											</div>
+										</div>
+
+										{/* Результаты тестов */}
+										<div className='space-y-4 mb-6'>
+											<h5 className='font-semibold text-gray-300 text-lg text-center'>Детальные результаты тестов</h5>
+
+											{analysisData.results.map((test, index) => (
+												<div
+													key={index}
+													className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+														test.passed
+															? 'bg-green-900/30 border-green-500/50 hover:bg-green-900/40'
+															: 'bg-red-900/30 border-red-500/50 hover:bg-red-900/40'
+													}`}
+												>
+													<div className='flex items-start gap-3'>
+														{test.passed ? (
+															<CheckCircle className='w-5 h-5 text-green-400 flex-shrink-0 mt-0.5' />
+														) : (
+															<div className='w-5 h-5 rounded-full bg-red-500/20 border-2 border-red-400 flex-shrink-0 mt-0.5 flex items-center justify-center'>
+																<div className='w-2 h-2 bg-red-400 rounded-full'></div>
+															</div>
+														)}
+
+														<div className='flex-1'>
+															<h6 className='font-semibold text-gray-200 mb-1'>
+																{test.test_name}
+															</h6>
+															<div className='grid grid-cols-2 gap-4 text-sm mb-2'>
+																<div>
+																	<span className='text-gray-400'>P-value:</span>
+																	<span className={`font-semibold ml-2 ${
+																		test.passed ? 'text-green-400' : 'text-red-400'
+																	}`}>
+																		{test.p_value.toFixed(6)}
+																	</span>
+																</div>
+																<div>
+																	<span className='text-gray-400'>Результат:</span>
+																	<span className={`font-semibold ml-2 ${
+																		test.passed ? 'text-green-400' : 'text-red-400'
+																	}`}>
+																		{test.passed ? 'Пройден ✓' : 'Не пройден ✗'}
+																	</span>
+																</div>
+															</div>
+															<div className='text-xs text-gray-400 bg-slate-800/30 p-2 rounded border border-slate-700/50'>
+																{test.details}
+															</div>
+														</div>
+													</div>
+												</div>
+											))}
+										</div>
+
+									</div>
+								)}
+
 								{/* Кнопка визуализации */}
 								<div className='text-center'>
 									<button
@@ -310,6 +427,26 @@ export function GenerateView() {
 						)}
 					</div>
 				</Card>
+
+				{/* Отдельный блок с кнопкой анализа пользовательских чисел */}
+				<div className='mt-8 text-center'>
+					<div className='bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-100'>
+						<h2 className='text-2xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3'>
+							<BarChart3 className='w-7 h-7 text-blue-500' />
+							<span>Анализ пользовательских чисел</span>
+						</h2>
+						<p className='text-gray-600 mb-6'>
+							Выполните статистический анализ ваших собственных последовательностей чисел
+						</p>
+						<button
+							onClick={() => router.push('/analyze')}
+							className='px-12 py-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-green-400/30 flex items-center gap-3 mx-auto'
+						>
+							<BarChart3 className='w-6 h-6' />
+							<span>Перейти к анализу</span>
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	)

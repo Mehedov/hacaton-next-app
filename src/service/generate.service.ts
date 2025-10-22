@@ -28,3 +28,18 @@ export const generateRandomNumbers = (data: {
 		}
 	)
 }
+
+export const analyzeRandomNumbers = (data: {
+	numbers: number[]
+	k_intervals?: number
+}) => {
+	return axios.post(
+		'https://enthropy.bgitu-compass.ru/rqs/analyze',
+		data,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+	)
+}

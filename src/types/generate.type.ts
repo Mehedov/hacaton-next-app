@@ -29,3 +29,22 @@ export interface IDataNode {
 	type: 'string' | 'number' | 'array' | 'interval'
 	description: string
 }
+
+export interface IAnalysisRequest {
+	numbers: number[]
+	k_intervals?: number
+}
+
+export interface ITestResult {
+	test_name: string
+	p_value: number
+	passed: boolean
+	details: string
+}
+
+export interface IAnalysisResponse {
+	total_numbers: number
+	k_intervals_used: number
+	results: ITestResult[]
+	summary: string
+}
