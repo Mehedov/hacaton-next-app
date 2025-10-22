@@ -54,10 +54,10 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 				content:
 					'Клиент получает хэш энтропийных данных и зашифрованную энтропию от сервера. Эти данные служат основой для генерации случайных чисел и обеспечивают криптографическую безопасность.',
 				technical:
-					'GET запрос к https://enthropy.bgitu-compass.ru/getEntropyHash возвращает entropyHash (хэш данных энтропии) и cryptedEntropy (зашифрованная энтропия). Хэш позволяет верифицировать подлинность данных энтропии, а зашифрованная энтропия идентифицирует конкретный набор данных для генерации.',
+					'GET запрос к https://enthropy.bgitu-compass.ru/getEntropyHash возвращает entropyHash (хэш данных энтропии) и encryptedEntropy (зашифрованная энтропия). Хэш позволяет верифицировать подлинность данных энтропии, а зашифрованная энтропия идентифицирует конкретный набор данных для генерации.',
 				examples: [
 					'GET /getEntropyHash',
-					'{"entropyHash": "a1b2c3...", "cryptedEntropy": "def456..."}',
+					'{"entropyHash": "a1b2c3...", "encryptedEntropy": "def456..."}',
 					'Верификация подлинности энтропии',
 					'Идентификация источника энтропии',
 				],
@@ -70,7 +70,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 				content:
 					'Клиент формирует запрос с уникальным идентификатором, диапазоном чисел и количеством. Зашифрованная энтропия связывает запрос с конкретным источником случайности.',
 				technical:
-					'Генерируется clientUUID для обеспечения уникальности запроса. Определяются параметры: interval (диапазон значений) и count (количество чисел). CryptedEntropy обеспечивает связь с конкретным источником энтропии для последующей верификации.',
+					'Генерируется clientUUID для обеспечения уникальности запроса. Определяются параметры: interval (диапазон значений) и count (количество чисел). EncryptedEntropy обеспечивает связь с конкретным источником энтропии для последующей верификации.',
 				examples: [
 					'clientUUID: "550e8400-e29b-41d4-a716-446655440000"',
 					'interval: [1, 100]',
@@ -86,7 +86,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 				content:
 					'Сформированный запрос отправляется на сервер для генерации случайных чисел. Все параметры передаются в одном POST запросе.',
 				technical:
-					'POST запрос к https://enthropy.bgitu-compass.ru/fullChain/GenerateRandomNumbers содержит clientUUID, interval, count и cryptedEntropy. Сервер использует эти параметры для генерации детерминированных, но непредсказуемых случайных чисел.',
+					'POST запрос к https://enthropy.bgitu-compass.ru/fullChain/GenerateRandomNumbers содержит clientUUID, interval, count и encryptedEntropy. Сервер использует эти параметры для генерации детерминированных, но непредсказуемых случайных чисел.',
 				examples: [
 					'POST /fullChain/GenerateRandomNumbers',
 					'{"clientUUID": "...", "interval": [1,100], "count": 10}',
@@ -238,7 +238,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 														<div className='text-green-300'>
 															Response:{' '}
 															<span className='text-blue-300'>
-																&#123;entropyHash, cryptedEntropy&#125;
+																&#123;entropyHash, encryptedEntropy&#125;
 															</span>
 														</div>
 														<div className='text-green-300'>

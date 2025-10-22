@@ -68,7 +68,7 @@ export const initialNodes = [
 		draggable: false,
 		selectable: false,
 		data: {
-			label: 'entropyHash и cryptedEntropy',
+			label: 'entropyHash и encryptedEntropy',
 			arrowStyle: 'arrow-top-left',
 		},
 		position: { x: -100, y: 130 },
