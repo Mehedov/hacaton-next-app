@@ -221,9 +221,6 @@ const ServerAlgorithmVisualization: React.FC<
 									<div className='text-xs text-emerald-700'>
 										Количество: {data.inputLayer.count}
 									</div>
-									<div className='text-xs text-emerald-700 font-mono bg-gray-900 text-green-400 p-2 rounded mt-2'>
-										[{data.outputLayer.outputValues.join(', ')}]
-									</div>
 								</div>
 							</div>
 						</div>

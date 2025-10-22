@@ -97,10 +97,7 @@ export function GenerateView() {
 				try {
 					const analysisResponse = await analyzeRandomNumbers({
 						numbers: response.data.outputLayer.outputValues,
-						k_intervals: Math.min(
-							100,
-							Math.floor(response.data.outputLayer.outputValues.length / 10)
-						),
+						k_intervals: 10,
 					})
 					setAnalysisData(analysisResponse.data as IAnalysisResponse)
 				} catch (error) {
@@ -403,7 +400,7 @@ export function GenerateView() {
 																				: 'text-red-400'
 																		}`}
 																	>
-																		{test.p_value.toFixed(6)}
+																		{Math.sqrt(Number(test.p_value.toFixed(6)))}
 																	</span>
 																</div>
 																<div>
@@ -482,3 +479,4 @@ export function GenerateView() {
 		</div>
 	)
 }
+

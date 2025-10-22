@@ -431,7 +431,7 @@ const AnalysisPage: React.FC = () => {
 																			: 'text-red-600'
 																	}`}
 																>
-																	{test.p_value.toFixed(6)}
+																	{Math.sqrt(Number(test.p_value.toFixed(6))) }
 																</span>
 															</div>
 															<div>
