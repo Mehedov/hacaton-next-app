@@ -3,7 +3,12 @@ import axios from 'axios'
 
 export const getRequestUUIDHash = () => {
 	return axios.get<IGetRequestUUIDHash>(
-		`${process.env.NEXT_PUBLIC_SERVER_URL + '/getRequestUUIDHash'}`
+		`${process.env.NEXT_PUBLIC_SERVER_URL}/getRequestUUIDHash`,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
 	)
 }
 
@@ -14,9 +19,12 @@ export const generateRandomNumbers = (data: {
 	jwtRequestUUIDToken: string
 }) => {
 	return axios.post<IServerResponse>(
-		`${
-			process.env.NEXT_PUBLIC_SERVER_URL + '/fullChain/generateRandomNumbers'
-		}`,
-		data
+		`${process.env.NEXT_PUBLIC_SERVER_URL}/fullChain/generateRandomNumbers`,
+		data,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
 	)
 }

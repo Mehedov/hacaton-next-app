@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, ReactNode } from 'react'
 import { IServerResponse } from '@/types/generate.type'
 import {
 	BookOpen,
@@ -12,7 +12,12 @@ import {
 	Lightbulb,
 	RefreshCw,
 	List,
-	X
+	X,
+	Link,
+	Zap,
+	Dices,
+	Settings,
+	Target
 } from 'lucide-react'
 
 interface InteractiveTooltipsProps {
@@ -28,7 +33,7 @@ interface TooltipInfo {
 	content: string
 	technical: string
 	examples: string[]
-	icon: string
+	icon: ReactNode
 	color: string
 }
 
@@ -55,7 +60,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'Радиоактивный распад',
 					'Криптографические функции'
 				],
-				icon: '🔗',
+				icon: <Link className="w-6 h-6" />,
 				color: '#ef4444',
 			},
 			{
@@ -69,7 +74,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'Первый блок любой цепочки',
 					'Корневой хэш сети'
 				],
-				icon: '⚡',
+				icon: <Zap className="w-6 h-6" />,
 				color: '#8b5cf6',
 			},
 			{
@@ -83,7 +88,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'Клиентский UUID',
 					'Серверный UUID'
 				],
-				icon: '🎲',
+				icon: <Dices className="w-6 h-6" />,
 				color: '#22c55e',
 			},
 			{
@@ -97,7 +102,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'Защита от коллизий',
 					'Улучшение распределения'
 				],
-				icon: '🧂',
+				icon: <Settings className="w-6 h-6" />,
 				color: '#f59e0b',
 			},
 			{
@@ -111,7 +116,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'Конкатенация данных',
 					'Криптографическое смешивание'
 				],
-				icon: '🔗',
+				icon: <Link className="w-6 h-6" />,
 				color: '#06b6d4',
 			},
 			{
@@ -125,7 +130,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'Равномерное распределение',
 					'Массив случайных значений'
 				],
-				icon: '🎯',
+				icon: <Target className="w-6 h-6" />,
 				color: '#10b981',
 			},
 		]
@@ -176,7 +181,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 						>
 							<div className='flex items-center gap-3 mb-3'>
 								<div
-									className='w-12 h-12 rounded-full flex items-center justify-center text-xl'
+									className='w-12 h-12 rounded-full flex items-center justify-center'
 									style={{ backgroundColor: currentTooltip.color }}
 								>
 									{currentTooltip.icon}
@@ -225,14 +230,23 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 
 						{/* Техническая информация */}
 						{showTechnical && (
-							<div className='bg-gray-50 p-4 rounded-lg border-l-4 border-gray-400'>
+							<div className='space-y-3'>
 								<h5 className='font-semibold text-gray-800 mb-2 flex items-center gap-2'>
 									<Microscope className="w-5 h-5" />
 									<span>Технические детали:</span>
 								</h5>
-								<p className='text-sm text-gray-700 leading-relaxed'>
-									{currentTooltip.technical}
-								</p>
+
+								<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+									<div className='text-gray-400 mb-2'>{/* Technical Implementation */}</div>
+									<div className='text-green-300'>Process: <span className='text-yellow-300'>{currentTooltip.title}</span></div>
+									<div className='text-green-300'>Method: <span className='text-blue-300'>Cryptographic algorithms</span></div>
+									<div className='text-green-300'>Security: <span className='text-purple-300'>High-grade entropy</span></div>
+									<div className='text-green-300'>Standard: <span className='text-red-300'>Industry best practices</span></div>
+									<div className='text-green-300 mt-2'>{/* Implementation details */}</div>
+									<div className='text-green-300'>const <span className='text-blue-300'>process</span> = <span className='text-yellow-300'>executeStep</span>(<span className='text-purple-300'>{currentStep + 1}</span>);</div>
+									<div className='text-green-300'>const <span className='text-blue-300'>result</span> = <span className='text-blue-300'>process</span>.<span className='text-yellow-300'>generate</span>();</div>
+									<div className='text-gray-400 mt-2'>{/* {currentTooltip.technical} */}</div>
+								</div>
 							</div>
 						)}
 
@@ -317,7 +331,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 													{tooltip.content.substring(0, 60)}...
 												</p>
 											</div>
-											<div className='text-lg'>{tooltip.icon}</div>
+											{tooltip.icon}
 										</div>
 									</div>
 								))}
