@@ -38,7 +38,12 @@ interface ProcessStep {
 		| { server: string; client: string }
 		| { data: string; url: string }
 		| { entropyHash: string; cryptedEntropy: string; entropyURL: string }
-		| { clientUUID: string; interval: [number, number]; count: number; cryptedEntropy: string }
+		| {
+				clientUUID: string
+				interval: [number, number]
+				count: number
+				cryptedEntropy: string
+		  }
 		| { genesisHash: string; data: string; clientUUID: string }
 		| { outputValues: number[]; entropyURL: string; genesisHash: string }
 }
@@ -61,7 +66,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 			{
 				id: 'get-entropy',
 				title: 'Получение энтропии',
-				description: 'GET запрос для получения entropyHash и cryptedEntropy',
+				description: 'GET запрос для получения entropyHash и encryptedEntropy',
 				icon: <Link className='w-6 h-6 text-white' />,
 				color: '#ef4444',
 				duration: 2000,
@@ -74,7 +79,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 			{
 				id: 'prepare-request',
 				title: 'Подготовка запроса',
-				description: 'Ввод clientUUID, interval, count и cryptedEntropy',
+				description: 'Ввод clientUUID, interval, count и encryptedEntropy',
 				icon: <Dices className='w-6 h-6 text-white' />,
 				color: '#22c55e',
 				duration: 1800,
@@ -499,7 +504,6 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 									}
 								})()}
 							</div>
-
 
 							{/* Animated Particles */}
 							{isAnimating && (
