@@ -19,9 +19,8 @@ import {
 	Sparkles,
 	Zap,
 } from 'lucide-react'
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 export function GenerateView() {
@@ -115,7 +114,7 @@ export function GenerateView() {
 						<div className='text-green-300'>
 							Client UUID:{' '}
 							<span className='text-yellow-300 break-all'>
-								{currentClientUUID || 'Генерируется при загрузке...'}
+								{currentClientUUID || 'Генерируется...'}
 							</span>
 						</div>
 
@@ -272,7 +271,10 @@ export function GenerateView() {
 								<div className='text-center mt-6'>
 									<button
 										onClick={() => {
-											localStorage.setItem('visualizationData', JSON.stringify(rngData))
+											localStorage.setItem(
+												'visualizationData',
+												JSON.stringify(rngData)
+											)
 											router.push('/visualization')
 										}}
 										className='inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 gap-2'
