@@ -57,7 +57,7 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 					'GET запрос к https://enthropy.bgitu-compass.ru/getEntropyHash возвращает entropyHash (хэш данных энтропии) и cryptedEntropy (зашифрованная энтропия). Хэш позволяет верифицировать подлинность данных энтропии, а зашифрованная энтропия идентифицирует конкретный набор данных для генерации.',
 				examples: [
 					'GET /getEntropyHash',
-					'{"entropyHash": "a1b2c3...", "ecryptedEntropy": "def456..."}',
+					'{"entropyHash": "a1b2c3...", "cryptedEntropy": "def456..."}',
 					'Верификация подлинности энтропии',
 					'Идентификация источника энтропии',
 				],

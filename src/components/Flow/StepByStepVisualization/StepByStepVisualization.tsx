@@ -61,7 +61,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 			{
 				id: 'get-entropy',
 				title: 'Получение энтропии',
-				description: 'GET запрос для получения entropyHash и ecryptedEntropy',
+				description: 'GET запрос для получения entropyHash и cryptedEntropy',
 				icon: <Link className='w-6 h-6 text-white' />,
 				color: '#ef4444',
 				duration: 2000,
@@ -74,7 +74,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 			{
 				id: 'prepare-request',
 				title: 'Подготовка запроса',
-				description: 'Ввод clientUUID, interval, count и ecryptedEntropy',
+				description: 'Ввод clientUUID, interval, count и cryptedEntropy',
 				icon: <Dices className='w-6 h-6 text-white' />,
 				color: '#22c55e',
 				duration: 1800,

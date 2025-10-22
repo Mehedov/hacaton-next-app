@@ -284,18 +284,18 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 							</div>
 							<div className='ml-11 space-y-2'>
 								<p className='text-sm text-gray-600'>
-									<strong>encryptedEntropy</strong> декодируется приватным ключом
+									<strong>cryptedEntropy</strong> декодируется приватным ключом
 									сервера
 								</p>
 								<div className='bg-gray-900 text-green-400 p-3 rounded font-mono text-xs'>
 									<div className='text-blue-300'>Input:</div>
 									<div className='text-yellow-300 ml-2'>
-										ecryptedEntropy = &quot;
+										cryptedEntropy = &quot;
 										{data.inputLayer.encryptedEntropy.substring(0, 16)}...&quot;
 									</div>
 									<div className='text-blue-300 mt-1'>Process:</div>
 									<div className='text-green-300 ml-2'>
-										decrypt(ecryptedEntropy, privateKey) → entropyId
+										decrypt(cryptedEntropy, privateKey) → entropyId
 									</div>
 								</div>
 							</div>
