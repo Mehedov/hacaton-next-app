@@ -12,7 +12,6 @@ import {
 	Rocket,
 	RotateCcw,
 	Target,
-	X,
 	Zap,
 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
@@ -48,7 +47,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 	const [currentStep, setCurrentStep] = useState(0)
 	const [isAnimating, setIsAnimating] = useState(false)
 	const [isCompleted, setIsCompleted] = useState(false)
-	const [showInteractiveTooltips, setShowInteractiveTooltips] = useState(false)
+	const [showInteractiveTooltips, setShowInteractiveTooltips] = useState(true)
 	const tooltipsRef = React.useRef<HTMLDivElement>(null)
 
 	const steps: ProcessStep[] = React.useMemo(() => {
@@ -139,7 +138,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 			setTimeout(() => {
 				tooltipsRef.current?.scrollIntoView({
 					behavior: 'smooth',
-					block: 'start'
+					block: 'start',
 				})
 			}, 100)
 		}
@@ -475,13 +474,13 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 																Combined entropy hash
 															</span>
 														</div>
-														<div className='flex flex-wrap gap-1 mt-2'>
+														<div className='flex flex-wrap gap-1 mt-2 font-mono text-sm'>
 															{(step.data as number[])
 																.slice(0, 8)
 																.map((val, idx) => (
 																	<span
 																		key={idx}
-																		className='bg-green-600 text-white px-2 py-1 rounded text-xs animate-pulse'
+																		className='bg-transparent text-gray-800 px-2 py-1 rounded border border-gray-300'
 																	>
 																		{val}
 																	</span>
@@ -519,11 +518,16 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 							{/* Кнопка подробнее */}
 							<div className='mt-6 text-center'>
 								<button
-									onClick={() => setShowInteractiveTooltips(!showInteractiveTooltips)}
+									onClick={() => {
+										tooltipsRef.current?.scrollIntoView({
+											behavior: 'smooth',
+											block: 'start',
+										})
+									}}
 									className='px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl transform hover:scale-105'
 								>
 									<Info className='w-5 h-5' />
-									<span>{showInteractiveTooltips ? 'Скрыть подсказки' : 'Подробнее об этом этапе'}</span>
+									<span>Подробнее об этом этапе</span>
 								</button>
 							</div>
 
@@ -718,17 +722,14 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				</div>
 			</div>
 
-			{/* Interactive Tooltips Block */}
-			{showInteractiveTooltips && (
-				<div className='mt-8' ref={tooltipsRef}>
-					<InteractiveTooltips
-						data={data}
-						currentStep={currentStep}
-						isVisible={showInteractiveTooltips}
-						onStepChange={(step) => setCurrentStep(step)}
-					/>
-				</div>
-			)}
+			<div className='mt-8' ref={tooltipsRef}>
+				<InteractiveTooltips
+					data={data}
+					currentStep={currentStep}
+					isVisible={true}
+					onStepChange={step => setCurrentStep(step)}
+				/>
+			</div>
 		</div>
 	)
 }

@@ -1,13 +1,17 @@
 'use client'
 
 import {
+	analyzeRandomNumbers,
 	generateRandomNumbers,
 	getRequestUUIDHash,
-	analyzeRandomNumbers,
 } from '@/service/generate.service'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { setCount, setInterval } from '@/store/intervalSlice'
-import { IGetRequestUUIDHash, IServerResponse, IAnalysisResponse } from '@/types/generate.type'
+import { setCount, setMin, setMax } from '@/store/intervalSlice'
+import {
+	IAnalysisResponse,
+	IGetRequestUUIDHash,
+	IServerResponse,
+} from '@/types/generate.type'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Card, Input } from 'antd'
 import Cookies from 'js-cookie'
@@ -18,7 +22,6 @@ import {
 	ExternalLink,
 	Save,
 	Settings,
-	Sparkles,
 	Zap,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -31,7 +34,9 @@ export function GenerateView() {
 	const router = useRouter()
 	const [isGenerating, setIsGenerating] = useState(false)
 	const [rngData, setRngData] = useState<IServerResponse | null>(null)
-	const [analysisData, setAnalysisData] = useState<IAnalysisResponse | null>(null)
+	const [analysisData, setAnalysisData] = useState<IAnalysisResponse | null>(
+		null
+	)
 	const [isAnalyzing, setIsAnalyzing] = useState(false)
 	const [currentClientUUID, setCurrentClientUUID] = useState<string>('')
 	const [minInput, setMinInput] = useState(min)
@@ -61,10 +66,6 @@ export function GenerateView() {
 		setCurrentClientUUID(clientUUID)
 	}, [])
 
-	const handleSaveInterval = () => {
-		dispatch(setInterval({ min: minInput, max: maxInput }))
-		dispatch(setCount(countInput))
-	}
 
 	const generateNumber = async () => {
 		if (!data || !currentClientUUID) return
@@ -83,10 +84,11 @@ export function GenerateView() {
 				return
 			}
 
+			const clampedCount = Math.min(Math.max(count, 1), 100)
 			const response = await generateRandomNumbers({
 				clientUUID: clientUUID,
 				interval: [min, max],
-				count: count,
+				count: clampedCount,
 				jwtRequestUUIDToken: jwtToken,
 			})
 			setRngData(response.data)
@@ -97,7 +99,10 @@ export function GenerateView() {
 				try {
 					const analysisResponse = await analyzeRandomNumbers({
 						numbers: response.data.outputLayer.outputValues,
-						k_intervals: Math.min(100, Math.floor(response.data.outputLayer.outputValues.length / 10))
+						k_intervals: Math.min(
+							100,
+							Math.floor(response.data.outputLayer.outputValues.length / 10)
+						),
 					})
 					setAnalysisData(analysisResponse.data as IAnalysisResponse)
 				} catch (error) {
@@ -165,7 +170,11 @@ export function GenerateView() {
 										type='number'
 										placeholder='10'
 										value={minInput}
-										onChange={e => setMinInput(Number(e.target.value))}
+										onChange={e => {
+											const value = Number(e.target.value)
+											setMinInput(value)
+											dispatch(setMin(value))
+										}}
 										min={10}
 										max={100}
 										className='text-center text-lg h-12'
@@ -179,7 +188,11 @@ export function GenerateView() {
 										type='number'
 										placeholder='100'
 										value={maxInput}
-										onChange={e => setMaxInput(Number(e.target.value))}
+										onChange={e => {
+											const value = Number(e.target.value)
+											setMaxInput(value)
+											dispatch(setMax(value))
+										}}
 										min={10}
 										max={100}
 										className='text-center text-xl h-12'
@@ -193,20 +206,17 @@ export function GenerateView() {
 										type='number'
 										placeholder='5'
 										value={countInput}
-										onChange={e => setCountInput(Number(e.target.value))}
+										onChange={e => {
+											const value = Number(e.target.value)
+											const clampedValue = Math.min(Math.max(value, 1), 100)
+											setCountInput(clampedValue)
+											dispatch(setCount(clampedValue))
+										}}
 										min={1}
+										max={100}
 										className='text-center text-lg h-12'
 									/>
 								</div>
-							</div>
-							<div className='flex justify-center mt-6'>
-								<Button
-									onClick={handleSaveInterval}
-									className='px-8 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold flex items-center gap-2'
-								>
-									<Save className='w-5 h-5' />
-									<span>Сохранить параметры</span>
-								</Button>
 							</div>
 						</div>
 
@@ -256,7 +266,8 @@ export function GenerateView() {
 										<div className='flex items-center gap-3'>
 											<span className='text-yellow-400 w-16'>Range:</span>
 											<span className='text-yellow-300 bg-gray-800 px-3 py-1 rounded border border-yellow-400/30'>
-												[{rngData.inputLayer.interval[0]}, {rngData.inputLayer.interval[1]}]
+												[{rngData.inputLayer.interval[0]},{' '}
+												{rngData.inputLayer.interval[1]}]
 											</span>
 										</div>
 										<div className='flex items-center gap-3'>
@@ -278,30 +289,26 @@ export function GenerateView() {
 								<div className='text-center mb-8'>
 									<h4 className='text-xl font-semibold text-gray-300 mb-6 flex items-center justify-center gap-2'>
 										<CheckCircle className='w-6 h-6 text-green-400' />
-										<span className='text-gray-300'>Сгенерированные числа:</span>
+										<span className='text-gray-300'>
+											Сгенерированные числа:
+										</span>
 									</h4>
-									<div className='flex flex-wrap justify-center gap-4 mb-6'>
+									<div className='flex flex-wrap justify-center gap-2 mb-6'>
 										{rngData.outputLayer.outputValues.map((value, index) => (
-											<div
+											<span
 												key={index}
-												className='relative group'
+												className='bg-transparent text-gray-500 px-3 py-2 rounded-lg text-lg font-mono border border-gray-500  transition-colors duration-200'
 											>
-												{/* Glow эффект */}
-												<div className='absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300'></div>
-
-												{/* Основная кнопка */}
-												<div className='relative w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl flex items-center justify-center text-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-green-400/30'>
-													{value}
-												</div>
-
-												{/* Декоративные элементы */}
-												<div className='absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300'></div>
-												<div className='absolute -bottom-1 -left-1 w-2 h-2 bg-blue-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300'></div>
-											</div>
+												{value}
+											</span>
 										))}
 									</div>
 									<div className='text-gray-400 text-sm'>
-										Всего сгенерировано: <span className='text-green-400 font-semibold'>{rngData.outputLayer.outputValues.length}</span> чисел
+										Всего сгенерировано:{' '}
+										<span className='text-green-400 font-semibold'>
+											{rngData.outputLayer.outputValues.length}
+										</span>{' '}
+										чисел
 									</div>
 								</div>
 
@@ -310,7 +317,9 @@ export function GenerateView() {
 									<div className='bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-blue-400/30 rounded-xl p-6 mb-6'>
 										<div className='flex items-center justify-center gap-3 text-blue-300'>
 											<div className='animate-spin rounded-full h-6 w-6 border-b-2 border-blue-300'></div>
-											<span className='font-semibold'>Выполняется анализ случайности...</span>
+											<span className='font-semibold'>
+												Выполняется анализ случайности...
+											</span>
 										</div>
 									</div>
 								)}
@@ -332,11 +341,15 @@ export function GenerateView() {
 											<div className='grid grid-cols-2 gap-4 text-sm'>
 												<div className='text-center'>
 													<div className='text-gray-400'>Всего чисел</div>
-													<div className='text-2xl font-bold text-cyan-400'>{analysisData.total_numbers}</div>
+													<div className='text-2xl font-bold text-cyan-400'>
+														{analysisData.total_numbers}
+													</div>
 												</div>
 												<div className='text-center'>
 													<div className='text-gray-400'>Интервалов</div>
-													<div className='text-2xl font-bold text-purple-400'>{analysisData.k_intervals_used}</div>
+													<div className='text-2xl font-bold text-purple-400'>
+														{analysisData.k_intervals_used}
+													</div>
 												</div>
 											</div>
 											<div className='mt-4 p-3 bg-slate-700/50 rounded border border-slate-600/50'>
@@ -348,7 +361,9 @@ export function GenerateView() {
 
 										{/* Результаты тестов */}
 										<div className='space-y-4 mb-6'>
-											<h5 className='font-semibold text-gray-300 text-lg text-center'>Детальные результаты тестов</h5>
+											<h5 className='font-semibold text-gray-300 text-lg text-center'>
+												Детальные результаты тестов
+											</h5>
 
 											{analysisData.results.map((test, index) => (
 												<div
@@ -374,18 +389,30 @@ export function GenerateView() {
 															</h6>
 															<div className='grid grid-cols-2 gap-4 text-sm mb-2'>
 																<div>
-																	<span className='text-gray-400'>P-value:</span>
-																	<span className={`font-semibold ml-2 ${
-																		test.passed ? 'text-green-400' : 'text-red-400'
-																	}`}>
+																	<span className='text-gray-400'>
+																		P-value:
+																	</span>
+																	<span
+																		className={`font-semibold ml-2 ${
+																			test.passed
+																				? 'text-green-400'
+																				: 'text-red-400'
+																		}`}
+																	>
 																		{test.p_value.toFixed(6)}
 																	</span>
 																</div>
 																<div>
-																	<span className='text-gray-400'>Результат:</span>
-																	<span className={`font-semibold ml-2 ${
-																		test.passed ? 'text-green-400' : 'text-red-400'
-																	}`}>
+																	<span className='text-gray-400'>
+																		Результат:
+																	</span>
+																	<span
+																		className={`font-semibold ml-2 ${
+																			test.passed
+																				? 'text-green-400'
+																				: 'text-red-400'
+																		}`}
+																	>
 																		{test.passed ? 'Пройден ✓' : 'Не пройден ✗'}
 																	</span>
 																</div>
@@ -398,7 +425,6 @@ export function GenerateView() {
 												</div>
 											))}
 										</div>
-
 									</div>
 								)}
 
@@ -436,7 +462,8 @@ export function GenerateView() {
 							<span>Анализ пользовательских чисел</span>
 						</h2>
 						<p className='text-gray-600 mb-6'>
-							Выполните статистический анализ ваших собственных последовательностей чисел
+							Выполните статистический анализ ваших собственных
+							последовательностей чисел
 						</p>
 						<button
 							onClick={() => router.push('/analyze')}
