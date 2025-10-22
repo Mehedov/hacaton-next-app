@@ -18,6 +18,7 @@ const SoundEffects: React.FC<SoundEffectsProps> = ({
 	useEffect(() => {
 		// Инициализация AudioContext
 		if (typeof window !== 'undefined' && !audioContextRef.current) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
 		}
 	}, [])

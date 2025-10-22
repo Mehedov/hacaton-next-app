@@ -15,9 +15,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export default function VisualizationPage() {
+function VisualizationContent() {
 	const searchParams = useSearchParams()
 	const [data, setData] = useState<IServerResponse | null>(null)
 	const [isAnimationPlaying, setIsAnimationPlaying] = useState(false)
@@ -71,7 +71,7 @@ export default function VisualizationPage() {
 								<span>Визуализация процесса генерации</span>
 							</h1>
 							<p className='text-gray-600 mt-1'>
-								Пошаговое объяснение алгоритма случайных чисел
+								Пошагоое объяснение алгоритма случайных чисел
 							</p>
 						</div>
 						<div className='flex gap-3'>
@@ -191,5 +191,23 @@ export default function VisualizationPage() {
 				</div>
 			</div>
 		</div>
+	)
+}
+
+export default function VisualizationPage() {
+	return (
+		<Suspense fallback={
+			<div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center'>
+				<div className='text-center'>
+					<div className='w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4'></div>
+					<h2 className='text-2xl font-bold text-gray-800 mb-2'>
+						Загрузка визуализации
+					</h2>
+					<p className='text-gray-600'>Подготовка данных...</p>
+				</div>
+			</div>
+		}>
+			<VisualizationContent />
+		</Suspense>
 	)
 }

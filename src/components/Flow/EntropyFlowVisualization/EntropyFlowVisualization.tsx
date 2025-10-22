@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { IServerResponse } from '@/types/generate.type'
-import { Waves, Activity, ExternalLink } from 'lucide-react'
+import { Waves, Activity } from 'lucide-react'
 
 interface EntropyFlowVisualizationProps {
 	data: IServerResponse | null
@@ -26,10 +26,9 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 	isActive,
 }) => {
 	const [particles, setParticles] = useState<Particle[]>([])
-	const [animationFrame, setAnimationFrame] = useState<number | null>(null)
 
 	// Создание частиц энтропии
-	const createEntropyParticles = () => {
+	const createEntropyParticles = useCallback(() => {
 		if (!data || !isActive) return
 
 		const newParticles: Particle[] = []
@@ -54,7 +53,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 		}
 
 		setParticles(prev => [...prev, ...newParticles])
-	}
+	}, [data, isActive])
 
 	// Анимация частиц
 	useEffect(() => {
@@ -79,13 +78,11 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 				return updatedParticles
 			})
 
-			setAnimationFrame(requestAnimationFrame(animate))
+			requestAnimationFrame(animate)
 		}
 
 		const interval = setInterval(createEntropyParticles, 300)
 		const frameId = requestAnimationFrame(animate)
-
-		setAnimationFrame(frameId)
 
 		return () => {
 			clearInterval(interval)
@@ -93,7 +90,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 				cancelAnimationFrame(frameId)
 			}
 		}
-	}, [isActive, data])
+	}, [isActive, data, createEntropyParticles])
 
 	// Генерация волн энтропии
 	const generateEntropyWaves = () => {

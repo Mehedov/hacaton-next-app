@@ -41,7 +41,7 @@ export default function Flow({ data }: FlowProps) {
 
 	// Состояние для данных сервера
 	const [serverData, setServerData] = useState<IServerResponse | null>(data)
-	const [error, setError] = useState<string | null>(null)
+	const error = null
 
 	// Define edges type to include all possible style properties
 	const [edges, setEdges] = useState<
