@@ -5,7 +5,6 @@ import {
 	ArrowRightLeft,
 	CheckCircle,
 	Dices,
-	FlaskConical,
 	Link,
 	Pause,
 	Play,
@@ -53,18 +52,18 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 		return [
 			{
 				id: 'entropy-collection',
-				title: 'Сбор энтропии',
-				description: 'Получение случайных данных от NIST API',
-				icon: <Link className='w-6 h-6' />,
+				title: 'Сбор аппаратной энтропии',
+				description: 'Получение энтропийных данных от нашего API сервиса',
+				icon: <Link className='w-6 h-6 text-white' />,
 				color: '#ef4444',
 				duration: 2000,
 				data: data.outputLayer.entropyData,
 			},
 			{
 				id: 'genesis-hash',
-				title: 'Genesis Hash',
-				description: 'Использование начального хэша блокчейна',
-				icon: <Zap className='w-6 h-6' />,
+				title: 'Genesis Hash (SHA-512)',
+				description: 'Хэширование энтропии с дополнительной солью',
+				icon: <Zap className='w-6 h-6 text-white' />,
 				color: '#8b5cf6',
 				duration: 1500,
 				data: data.outputLayer.genesisHash,
@@ -72,8 +71,8 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 			{
 				id: 'uuid-generation',
 				title: 'Генерация UUID',
-				description: 'Создание уникальных идентификаторов',
-				icon: <Dices className='w-6 h-6' />,
+				description: 'Создание уникальных идентификаторов на клиенте',
+				icon: <Dices className='w-6 h-6 text-white' />,
 				color: '#22c55e',
 				duration: 1800,
 				data: {
@@ -82,19 +81,10 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				},
 			},
 			{
-				id: 'salt-addition',
-				title: 'Добавление соли',
-				description: 'Улучшение безопасности дополнительной солью',
-				icon: <FlaskConical className='w-6 h-6' />,
-				color: '#f59e0b',
-				duration: 1200,
-				data: data.outputLayer.extraSalt,
-			},
-			{
 				id: 'hash-combination',
 				title: 'Комбинирование хэшей',
-				description: 'Объединение всех данных в единый хэш',
-				icon: <ArrowRightLeft className='w-6 h-6' />,
+				description: 'Объединение Genesis Hash и UUID',
+				icon: <ArrowRightLeft className='w-6 h-6 text-white' />,
 				color: '#06b6d4',
 				duration: 2500,
 			},
@@ -102,7 +92,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				id: 'final-output',
 				title: 'Генерация результата',
 				description: 'Получение финальных случайных чисел',
-				icon: <Target className='w-6 h-6' />,
+				icon: <Target className='w-6 h-6 text-white' />,
 				color: '#10b981',
 				duration: 2000,
 				data: data.outputLayer.outputValues,
@@ -172,21 +162,20 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 	}
 
 	return (
-		<div className='w-full max-w-6xl mx-auto p-6 bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-lg'>
+		<div className='w-full max-w-6xl mx-auto p-6 to-blue-50 rounded-xl'>
 			{/* Header */}
 			<div className='text-center mb-8'>
-				<h3 className='text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2'>
-					<Rocket className='w-8 h-8' />
-					<span>Пошаговая визуализация процесса</span>
+				<div className='flex items-center justify-between'>
+					<h3 className='text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2 mb-2'>
+						<Rocket className='w-8 h-8' />
+						<span>Пошаговая визуализация процесса</span>
+					</h3>
 					{isCompleted && (
 						<span className='px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full font-medium'>
 							✓ Готово к просмотру
 						</span>
 					)}
-				</h3>
-				<p className='text-gray-600'>
-					Следите за каждым этапом генерации случайных чисел
-				</p>
+				</div>
 			</div>
 
 			{/* Progress Bar */}
@@ -266,14 +255,14 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 												<div className='space-y-3'>
 													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
 														<div className='text-gray-400 mb-2'>
-															{/* NIST Randomness Beacon API Response */}
+															{/* Hardware Entropy API Response */}
 														</div>
 														<div className='text-green-300'>
-															URL:{' '}
+															API:{' '}
 															<span className='text-yellow-300'>
 																{String(
 																	entropyData?.url ||
-																		'https://beacon.nist.gov/rest/record/'
+																		'https://our-api.com/entropy'
 																)}
 															</span>
 														</div>
@@ -281,15 +270,15 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 															Data:{' '}
 															<span className='text-blue-300 break-all'>
 																{entropyData?.data ||
-																	'random_entropy_string_from_nist'}
+																	'hardware_entropy_string_from_api'}
 															</span>
 														</div>
 													</div>
 													<div className='bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400'>
 														<p className='text-sm text-blue-800'>
-															<strong>Процесс:</strong> Получение энтропийных
-															данных от авторитетного источника NIST для
-															обеспечения криптографической случайности.
+															<strong>Процесс:</strong> Получение аппаратной
+															энтропии от нашего API сервиса для обеспечения
+															истинной случайности на аппаратном уровне.
 														</p>
 													</div>
 												</div>
@@ -300,7 +289,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 												<div className='space-y-3'>
 													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
 														<div className='text-gray-400 mb-2'>
-															{/* Genesis Hash (Блокчейн) */}
+															{/* Genesis Hash (SHA-512) */}
 														</div>
 														<div className='text-green-300'>
 															Hash:{' '}
@@ -310,20 +299,20 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 														</div>
 														<div className='text-green-300'>
 															Algorithm:{' '}
-															<span className='text-purple-300'>SHA-256</span>
+															<span className='text-purple-300'>SHA-512</span>
 														</div>
 														<div className='text-green-300'>
-															Block:{' '}
+															Input:{' '}
 															<span className='text-blue-300'>
-																#0 (Genesis)
+																Entropy + Extra Salt
 															</span>
 														</div>
 													</div>
 													<div className='bg-purple-50 p-3 rounded-lg border-l-4 border-purple-400'>
 														<p className='text-sm text-purple-800'>
-															<strong>Процесс:</strong> Использование
-															неизменяемого хэша первого блока для
-															дополнительного источника энтропии.
+															<strong>Процесс:</strong> Хэширование энтропийных
+															данных с дополнительной солью с использованием
+															SHA-512 для создания Genesis Hash.
 														</p>
 													</div>
 												</div>
@@ -421,7 +410,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 														<div className='text-green-300'>
 															Input:{' '}
 															<span className='text-blue-300'>
-																Entropy + Genesis + UUIDs + Salt
+																Genesis Hash + Client UUID
 															</span>
 														</div>
 														<div className='text-green-300'>
@@ -439,9 +428,9 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 													</div>
 													<div className='bg-cyan-50 p-3 rounded-lg border-l-4 border-cyan-400'>
 														<p className='text-sm text-cyan-800'>
-															<strong>Процесс:</strong> Криптографическое
-															комбинирование всех источников энтропии с
-															использованием хэш-функции SHA-256.
+															<strong>Процесс:</strong> Комбинирование Genesis
+															Hash и клиентского UUID с использованием
+															хэш-функции SHA-256 для создания финального seed.
 														</p>
 													</div>
 												</div>
@@ -495,7 +484,8 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 														<p className='text-sm text-green-800'>
 															<strong>Процесс:</strong> Генерация финальных
 															случайных чисел в указанном диапазоне с
-															использованием комбинированной энтропии как seed.
+															использованием комбинированного хэша как seed для
+															детерминированного генератора.
 														</p>
 													</div>
 												</div>
@@ -675,7 +665,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 									<div
 										className={`absolute top-0 left-0 h-1 rounded-full transition-all duration-500 ${
 											index < currentStep ||
-											(isCompleted && index < currentStep)
+											(isCompleted && index <= currentStep)
 												? 'w-16 bg-green-400'
 												: 'w-0 bg-blue-400'
 										}`}

@@ -94,7 +94,7 @@ export function GenerateView() {
 	}
 
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-8'>
+		<div className='min-h-screen from-blue-50 to-indigo-100 flex items-center justify-center p-8'>
 			<div className='max-w-4xl mx-auto'>
 				{/* Заголовок */}
 				<div className='text-center mb-12'>
@@ -103,7 +103,7 @@ export function GenerateView() {
 						<span>Генератор случайных чисел</span>
 					</h1>
 					<p className='text-xl text-gray-600 mb-6'>
-						Создайте случайные числа с криптографической защитой
+						Создайте случайные числа с аппаратной энтропией
 					</p>
 
 					{/* Блок Client UUID в формате кода */}
@@ -216,59 +216,77 @@ export function GenerateView() {
 
 						{/* Результат генерации */}
 						{rngData && (
-							<div className='bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-8'>
-								<h3 className='text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center gap-2'>
-									<Sparkles className='w-7 h-7 text-yellow-500' />
-									<span>Результат генерации</span>
-								</h3>
+							<div className='bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 rounded-xl p-8 shadow-2xl'>
+								{/* Заголовок */}
+								<div className='text-center mb-8'>
+									<h3 className='text-3xl font-bold mb-2'>
+										<span className='bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent'>
+											Результат генерации
+										</span>
+									</h3>
+									<div className='w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-400 mx-auto rounded-full'></div>
+								</div>
 
-								{/* Параметры запроса */}
-								<div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
-									<div className='bg-white rounded-lg p-4 text-center shadow-sm'>
-										<div className='text-sm text-gray-600 mb-1'>Диапазон</div>
-										<div className='text-lg font-semibold text-gray-800'>
-											[{rngData.inputLayer.interval[0]},{' '}
-											{rngData.inputLayer.interval[1]}]
-										</div>
+								{/* Информационный блок в стиле терминала */}
+								<div className='bg-gray-900 border border-gray-600 rounded-lg p-6 mb-8 font-mono text-sm'>
+									<div className='text-gray-400 mb-4 text-xs uppercase tracking-wider'>
+										Generation Parameters
 									</div>
-									<div className='bg-white rounded-lg p-4 text-center shadow-sm'>
-										<div className='text-sm text-gray-600 mb-1'>Количество</div>
-										<div className='text-lg font-semibold text-gray-800'>
-											{rngData.inputLayer.count} чисел
+									<div className='space-y-3'>
+										<div className='flex items-center gap-3'>
+											<span className='text-yellow-400 w-16'>Range:</span>
+											<span className='text-yellow-300 bg-gray-800 px-3 py-1 rounded border border-yellow-400/30'>
+												[{rngData.inputLayer.interval[0]}, {rngData.inputLayer.interval[1]}]
+											</span>
 										</div>
-									</div>
-									<div className='bg-white rounded-lg p-4 text-center shadow-sm'>
-										<div className='text-sm text-gray-600 mb-1'>Время</div>
-										<div className='text-lg font-semibold text-gray-800'>
-											{new Date().toLocaleTimeString('ru-RU')}
+										<div className='flex items-center gap-3'>
+											<span className='text-purple-400 w-16'>Count:</span>
+											<span className='text-purple-300 bg-gray-800 px-3 py-1 rounded border border-purple-400/30'>
+												{rngData.inputLayer.count} numbers
+											</span>
+										</div>
+										<div className='flex items-center gap-3'>
+											<span className='text-cyan-400 w-16'>Seed:</span>
+											<span className='text-cyan-300 bg-gray-800 px-3 py-1 rounded border border-cyan-400/30'>
+												Combined entropy hash
+											</span>
 										</div>
 									</div>
 								</div>
 
-								{/* Сгенерированные числа */}
-								<div className='bg-white rounded-lg p-6 shadow-sm'>
-									<h4 className='text-lg font-semibold text-gray-800 mb-4 text-center flex items-center justify-center gap-2'>
-										<CheckCircle className='w-6 h-6 text-green-600' />
-										<span>Сгенерированные числа:</span>
+								{/* Сгенерированные числа в красивом стиле */}
+								<div className='text-center mb-8'>
+									<h4 className='text-xl font-semibold text-gray-300 mb-6 flex items-center justify-center gap-2'>
+										<CheckCircle className='w-6 h-6 text-green-400' />
+										<span className='text-gray-300'>Сгенерированные числа:</span>
 									</h4>
-									<div className='flex flex-wrap justify-center gap-3 mb-4'>
+									<div className='flex flex-wrap justify-center gap-4 mb-6'>
 										{rngData.outputLayer.outputValues.map((value, index) => (
 											<div
 												key={index}
-												className='w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl flex items-center justify-center text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110'
+												className='relative group'
 											>
-												{value}
+												{/* Glow эффект */}
+												<div className='absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300'></div>
+
+												{/* Основная кнопка */}
+												<div className='relative w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl flex items-center justify-center text-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-green-400/30'>
+													{value}
+												</div>
+
+												{/* Декоративные элементы */}
+												<div className='absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300'></div>
+												<div className='absolute -bottom-1 -left-1 w-2 h-2 bg-blue-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300'></div>
 											</div>
 										))}
 									</div>
-									<div className='text-center text-gray-600'>
-										Всего сгенерировано:{' '}
-										{rngData.outputLayer.outputValues.length} чисел
+									<div className='text-gray-400 text-sm'>
+										Всего сгенерировано: <span className='text-green-400 font-semibold'>{rngData.outputLayer.outputValues.length}</span> чисел
 									</div>
 								</div>
 
-								{/* Кнопка перехода к визуализации */}
-								<div className='text-center mt-6'>
+								{/* Кнопка визуализации */}
+								<div className='text-center'>
 									<button
 										onClick={() => {
 											localStorage.setItem(
@@ -277,10 +295,15 @@ export function GenerateView() {
 											)
 											router.push('/visualization')
 										}}
-										className='inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 gap-2'
+										className='group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-purple-400/30'
 									>
-										<ExternalLink className='w-6 h-6' />
-										<span>Посмотреть визуализацию процесса</span>
+										{/* Glow эффект для кнопки */}
+										<div className='absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300'></div>
+
+										<div className='relative flex items-center gap-3'>
+											<ExternalLink className='w-6 h-6 group-hover:rotate-12 transition-transform duration-300' />
+											<span>Посмотреть визуализацию процесса</span>
+										</div>
 									</button>
 								</div>
 							</div>

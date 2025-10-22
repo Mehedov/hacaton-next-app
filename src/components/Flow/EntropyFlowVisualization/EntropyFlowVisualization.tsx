@@ -132,12 +132,14 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 						>
 							{/* Волна энтропии */}
 							<div
-								className='w-96 h-1 rounded-full opacity-30 animate-pulse'
+								className='w-96 h-1 rounded-full opacity-30 animate-pulse transition-opacity duration-500'
 								style={{
-									background: `linear-gradient(90deg, 
-										${`hsl(${entropyValue % 360}, 70%, 50%)`}, 
-										${`hsl(${(entropyValue + 60) % 360}, 70%, 60%)`}, 
-										${`hsl(${(entropyValue + 120) % 360}, 70%, 50%)`})`,
+									background: `linear-gradient(90deg,
+										${`hsl(${entropyValue % 360}, 70%, 40%)`},
+										${`hsl(${(entropyValue + 30) % 360}, 70%, 50%)`},
+										${`hsl(${(entropyValue + 60) % 360}, 70%, 60%)`},
+										${`hsl(${(entropyValue + 90) % 360}, 70%, 50%)`},
+										${`hsl(${(entropyValue + 120) % 360}, 70%, 40%)`})`,
 									boxShadow: `0 0 20px ${`hsl(${
 										entropyValue % 360
 									}, 70%, 50%)`}`,
@@ -170,14 +172,16 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 	}
 
 	return (
-		<div className='relative w-full h-64 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent overflow-hidden rounded-b-[18px]'>
+		<div className='relative w-full h-64 bg-gradient-to-t from-gray-900 via-gray-800 to-gray-700 dark:from-gray-800 dark:via-gray-700 dark:to-gray-600 overflow-hidden rounded-[18px]'>
 			{/* Заголовок */}
 			<div className='absolute top-4 left-4 z-10'>
 				<h4 className='text-white text-lg font-bold mb-1 flex items-center gap-2'>
 					<Waves className='w-5 h-5' />
-					<span>Поток энтропии</span>
+					<span>Поток аппаратной энтропии</span>
 				</h4>
-				<p className='text-gray-300 text-sm'>Визуализация энтропийных данных</p>
+				<p className='text-gray-300 text-sm'>
+					Визуализация данных от нашего API
+				</p>
 			</div>
 
 			{/* Энтропийные волны */}
@@ -188,7 +192,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 				{particles.map(particle => (
 					<div
 						key={particle.id}
-						className='absolute rounded-full transition-opacity duration-200'
+						className='absolute rounded-full transition-all duration-300 ease-out'
 						style={{
 							left: `${particle.x}%`,
 							top: `${particle.y}%`,
@@ -197,6 +201,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 							backgroundColor: particle.color,
 							opacity: (1 - particle.life / particle.maxLife) * 0.8,
 							boxShadow: `0 0 ${particle.size * 2}px ${particle.color}`,
+							transform: `scale(${1 - particle.life / particle.maxLife * 0.5})`,
 						}}
 					/>
 				))}
@@ -212,11 +217,17 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 						opacity: 0;
 					}
 					10% {
-						opacity: 1;
+						opacity: 0.3;
+					}
+					30% {
+						opacity: 0.8;
 					}
 					50% {
 						transform: translateX(-50%) scaleX(1) scaleY(1);
-						opacity: 0.8;
+						opacity: 1;
+					}
+					70% {
+						opacity: 0.6;
 					}
 					100% {
 						transform: translateX(-50%) scaleX(2) scaleY(0.5);

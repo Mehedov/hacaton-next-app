@@ -36,9 +36,8 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 		const steps = [
 			{ name: 'entropy', data: data.outputLayer.entropyData.data, color: '#ef4444' },
 			{ name: 'genesis', data: data.outputLayer.genesisHash, color: '#8b5cf6' },
-			{ name: 'uuid', data: data.outputLayer.requestUUID, color: '#22c55e' },
-			{ name: 'salt', data: data.outputLayer.extraSalt, color: '#f59e0b' },
-			{ name: 'combined', data: 'combined_hash', color: '#06b6d4' },
+			{ name: 'uuid', data: data.inputLayer.clientUUID, color: '#22c55e' },
+			{ name: 'combined', data: data.outputLayer.requestUUID, color: '#06b6d4' },
 			{ name: 'output', data: data.outputLayer.outputValues, color: '#10b981' },
 		]
 
@@ -144,7 +143,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 			<div className='absolute top-4 left-4 z-10'>
 				<h4 className='text-gray-800 text-lg font-bold mb-1 flex items-center gap-2'>
 					<ArrowRightLeft className="w-6 h-6" />
-					<span>Трансформация данных</span>
+					<span>Трансформация энтропии</span>
 				</h4>
 				<p className='text-gray-600 text-sm'>
 					Фаза: {getPhaseDescription()}
@@ -277,7 +276,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 						) : (
 							<CheckCircle className="w-4 h-4 text-green-500" />
 						)}
-						<span>{isAnimating ? `Этап ${currentStep + 1}/6` : 'Процесс завершен'}</span>
+						<span>{isAnimating ? `Этап ${currentStep + 1}/5` : 'Процесс завершен'}</span>
 					</div>
 				</div>
 			</div>

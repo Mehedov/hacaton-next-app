@@ -14,7 +14,6 @@ import {
 	Theater,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 
 function VisualizationContent() {
@@ -61,7 +60,7 @@ function VisualizationContent() {
 	}
 
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
+		<div className='min-h-screen from-slate-50 to-blue-50'>
 			{/* Навигация */}
 			<div className='bg-white shadow-sm border-b'>
 				<div className='max-w-7xl mx-auto px-6 py-4'>
@@ -90,13 +89,148 @@ function VisualizationContent() {
 
 			{/* Основное содержимое */}
 			<div className='w-full mx-auto px-6 py-8 space-y-8'>
+				<EntropyFlowVisualization data={data} isActive={isAnimationPlaying} />
+
+				{/* Информация о генерации вверху */}
+				<div className='bg-gradient-to-br mt-16 rounded-xl p-8'>
+					<div className='max-w-6xl mx-auto'>
+						{/* Заголовок блока */}
+						<div className='text-center mb-8'>
+							<h3 className='text-3xl font-bold mb-2'>
+								<span className='bg-bg-clip-text text-black'>
+									Информация о генерации
+								</span>
+							</h3>
+							<div className='w-24 h-1 bg-gradient-to-r from-black to-black mx-auto rounded-full'></div>
+						</div>
+
+						{/* Основной блок информации в стиле терминала */}
+						<div className='bg-gray-900 border border-gray-600 rounded-xl p-8 shadow-2xl'>
+							<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+								{/* Данные генерации */}
+								<div className='text-center lg:text-left'>
+									<div className='flex items-center justify-center lg:justify-start gap-3 mb-4'>
+										<div className='w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg'>
+											<Database className='w-7 h-7 text-white' />
+										</div>
+										<h4 className='text-xl font-semibold text-gray-200'>
+											Данные генерации
+										</h4>
+									</div>
+									<div className='space-y-4'>
+										<div className='bg-gray-800 border border-blue-400/30 rounded-lg p-4 hover:border-blue-400/50 transition-colors duration-300'>
+											<div className='text-sm font-medium text-blue-400 mb-2 uppercase tracking-wider'>
+												Диапазон чисел
+											</div>
+											<div className='text-3xl font-bold text-blue-300'>
+												[{data.inputLayer.interval[0]},{' '}
+												{data.inputLayer.interval[1]}]
+											</div>
+										</div>
+										<div className='bg-gray-800 border border-green-400/30 rounded-lg p-4 hover:border-green-400/50 transition-colors duration-300'>
+											<div className='text-sm font-medium text-green-400 mb-2 uppercase tracking-wider'>
+												Количество
+											</div>
+											<div className='text-3xl font-bold text-green-300'>
+												{data.inputLayer.count} чисел
+											</div>
+										</div>
+									</div>
+								</div>
+
+								{/* Источники энтропии */}
+								<div className='text-center lg:text-left'>
+									<div className='flex items-center justify-center lg:justify-start gap-3 mb-4'>
+										<div className='w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg'>
+											<LinkIcon className='w-7 h-7 text-white' />
+										</div>
+										<h4 className='text-xl font-semibold text-gray-200'>
+											Источники энтропии
+										</h4>
+									</div>
+									<div className='space-y-4'>
+										<div className='bg-gray-800 border border-purple-400/30 rounded-lg p-4 hover:border-purple-400/50 transition-colors duration-300'>
+											<div className='text-sm font-medium text-purple-400 mb-2 uppercase tracking-wider'>
+												Аппаратная энтропия
+											</div>
+											<div className='text-xl font-bold text-purple-300'>
+												Hardware Entropy API
+											</div>
+										</div>
+										<div className='bg-gray-800 border border-indigo-400/30 rounded-lg p-4 hover:border-indigo-400/50 transition-colors duration-300'>
+											<div className='text-sm font-medium text-indigo-400 mb-2 uppercase tracking-wider'>
+												Криптографическое хэширование
+											</div>
+											<div className='text-xl font-bold text-indigo-300'>
+												Genesis Hash (SHA-512)
+											</div>
+										</div>
+									</div>
+								</div>
+
+								{/* Результат */}
+								<div className='text-center lg:text-left'>
+									<div className='flex items-center justify-center lg:justify-start gap-3 mb-4'>
+										<div className='w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center shadow-lg'>
+											<CheckCircle className='w-7 h-7 text-white' />
+										</div>
+										<h4 className='text-xl font-semibold text-gray-200'>
+											Результат генерации
+										</h4>
+									</div>
+									<div className='space-y-4'>
+										<div className='bg-gray-800 border border-emerald-400/30 rounded-lg p-4 hover:border-emerald-400/50 transition-colors duration-300'>
+											<div className='text-sm font-medium text-emerald-400 mb-2 uppercase tracking-wider'>
+												Генерация
+											</div>
+											<div className='text-xl font-bold text-emerald-300'>
+												✓ Успешно завершена
+											</div>
+										</div>
+										<div className='bg-gray-800 border border-gray-400/30 rounded-lg p-4 hover:border-gray-400/50 transition-colors duration-300'>
+											<div className='text-sm font-medium text-gray-400 mb-2 uppercase tracking-wider'>
+												Криптографическая безопасность
+											</div>
+											<div className='text-xl font-bold text-gray-300'>
+												Высокий уровень
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							{/* Дополнительная информация */}
+							<div className='mt-8 pt-6 border-t border-gray-600'>
+								<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+									<div className='bg-gradient-to-r from-gray-800 to-gray-700 border border-blue-400/20 rounded-lg p-4 hover:border-blue-400/40 transition-colors duration-300'>
+										<h5 className='font-semibold text-blue-400 mb-2 flex items-center gap-2'>
+											<div className='w-2 h-2 bg-blue-400 rounded-full'></div>
+											Клиентский UUID
+										</h5>
+										<p className='text-sm text-gray-300 font-mono break-all'>
+											{data.inputLayer.clientUUID}
+										</p>
+									</div>
+									<div className='bg-gradient-to-r from-gray-800 to-gray-700 border border-purple-400/20 rounded-lg p-4 hover:border-purple-400/40 transition-colors duration-300'>
+										<h5 className='font-semibold text-purple-400 mb-2 flex items-center gap-2'>
+											<div className='w-2 h-2 bg-purple-400 rounded-full'></div>
+											Серверный UUID
+										</h5>
+										<p className='text-sm text-gray-300 font-mono break-all'>
+											{data.outputLayer.requestUUID}
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
 				{/* Две колонки для дополнительных визуализаций (сверху) */}
 				{/* Поток энтропии */}
 
-				<EntropyFlowVisualization data={data} isActive={isAnimationPlaying} />
-
 				{/* Пошаговая визуализация (снизу) */}
-				<div className='bg-white rounded-2xl shadow-lg p-8'>
+				<div className='bg-white rounded-2xl p-8'>
 					<StepByStepVisualization
 						data={data}
 						isPlaying={isAnimationPlaying}
@@ -143,50 +277,6 @@ function VisualizationContent() {
 					currentStep={currentStep}
 					eventType={isAnimationPlaying ? 'step_change' : 'completion'}
 				/>
-			</div>
-
-			{/* Футер с информацией */}
-			<div className='bg-white border-t mt-16'>
-				<div className='max-w-7xl mx-auto px-6 py-8'>
-					<div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-						<div className='text-center'>
-							<h4 className='font-semibold text-gray-800 mb-2 flex items-center gap-2'>
-								<Database className='w-5 h-5' />
-								<span>Данные генерации</span>
-							</h4>
-							<p className='text-sm text-gray-600'>
-								Диапазон: [{data.inputLayer.interval[0]},{' '}
-								{data.inputLayer.interval[1]}]
-							</p>
-							<p className='text-sm text-gray-600'>
-								Количество: {data.inputLayer.count} чисел
-							</p>
-						</div>
-						<div className='text-center'>
-							<h4 className='font-semibold text-gray-800 mb-2 flex items-center gap-2'>
-								<LinkIcon className='w-5 h-5' />
-								<span>Источники энтропии</span>
-							</h4>
-							<p className='text-sm text-gray-600'>NIST API + Genesis Hash</p>
-							<p className='text-sm text-gray-600'>
-								Дополнительная соль: {data.outputLayer.extraSalt.length}{' '}
-								символов
-							</p>
-						</div>
-						<div className='text-center'>
-							<h4 className='font-semibold text-gray-800 mb-2 flex items-center gap-2'>
-								<CheckCircle className='w-5 h-5' />
-								<span>Результат</span>
-							</h4>
-							<p className='text-sm text-gray-600'>
-								Генерация завершена успешно
-							</p>
-							<p className='text-sm text-gray-600'>
-								Время: {new Date().toLocaleTimeString('ru-RU')}
-							</p>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	)
