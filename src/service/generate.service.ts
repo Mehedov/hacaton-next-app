@@ -3,7 +3,7 @@ import axios from 'axios'
 
 export const getEntropyHash = () => {
 	return axios.get<IGetRequestUUIDHash>(
-		`${process.env.NEXT_PUBLIC_SERVER_URL}/getEntropyHash`,
+		`https://back.bgitu-compass.ru/getEntropyHash`,
 		{
 			headers: {
 				'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export const generateRandomNumbers = (data: {
 	encryptedEntropy: string
 }) => {
 	return axios.post<IServerResponse>(
-		`${process.env.NEXT_PUBLIC_SERVER_URL}/fullChain/generateRandomNumbers`,
+		`https://back.bgitu-compass.ru/fullChain/generateRandomNumbers`,
 		data,
 		{
 			headers: {
