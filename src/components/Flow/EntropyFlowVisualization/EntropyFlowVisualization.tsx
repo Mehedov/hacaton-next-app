@@ -45,7 +45,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 		if (!data || !isActive || !isVisible) return
 
 		const newParticles: Particle[] = []
-		const entropyData = data.outputLayer.entropyData.data
+		const entropyData = data.outputLayer.entropy.data
 
 		// Создаем частицы на основе энтропийных данных (уменьшено количество)
 		for (let i = 0; i < 4; i++) {
@@ -111,7 +111,7 @@ const EntropyFlowVisualization: React.FC<EntropyFlowVisualizationProps> = ({
 	const generateEntropyWaves = () => {
 		if (!data || !isActive || !isVisible) return null
 
-		const entropyData = data.outputLayer.entropyData.data
+		const entropyData = data.outputLayer.entropy.data
 		const waveCount = Math.min(entropyData.length, 10)
 
 		return (

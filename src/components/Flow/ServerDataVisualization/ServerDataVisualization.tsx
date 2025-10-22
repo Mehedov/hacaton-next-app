@@ -104,14 +104,14 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 			{
 				id: 'entropyData',
 				label: 'Данные энтропии',
-				value: data.outputLayer.entropyData.data,
+				value: data.outputLayer.entropy.data,
 				type: 'string',
 				description: 'Энтропийные данные от NIST',
 			},
 			{
 				id: 'entropyUrl',
 				label: 'Источник энтропии',
-				value: data.outputLayer.entropyData.url,
+				value: data.outputLayer.entropy.url,
 				type: 'string',
 				description: 'URL источника энтропийных данных',
 			},

@@ -117,7 +117,7 @@ function VisualizationContent() {
 											<div className='text-sm font-medium text-blue-400 mb-2 uppercase tracking-wider'>
 												Диапазон чисел
 											</div>
-											<div className='text-3xl font-bold text-blue-300'>
+											<div className='text-xl font-bold text-blue-300'>
 												[{data.inputLayer.interval[0]},{' '}
 												{data.inputLayer.interval[1]}]
 											</div>
@@ -126,8 +126,10 @@ function VisualizationContent() {
 											<div className='text-sm font-medium text-green-400 mb-2 uppercase tracking-wider'>
 												Количество
 											</div>
-											<div className='text-3xl font-bold text-green-300'>
-												{data.inputLayer.count} чисел
+											<div className='text-xl font-bold text-green-300'>
+												{data.inputLayer.count != 1
+													? `${data.inputLayer.count} чисел`
+													: `${data.inputLayer.count} число`}
 											</div>
 										</div>
 									</div>
@@ -209,10 +211,10 @@ function VisualizationContent() {
 									<div className='bg-gradient-to-r from-gray-800 to-gray-700 border border-purple-400/20 rounded-lg p-4 hover:border-purple-400/40 transition-colors duration-300'>
 										<h5 className='font-semibold text-purple-400 mb-2 flex items-center gap-2'>
 											<div className='w-2 h-2 bg-purple-400 rounded-full'></div>
-											Серверный UUID
+											Entropy Hash
 										</h5>
 										<p className='text-sm text-gray-300 font-mono break-all'>
-											{data.outputLayer.requestUUID}
+											{data.outputLayer.entropy.entropyId}
 										</p>
 									</div>
 								</div>

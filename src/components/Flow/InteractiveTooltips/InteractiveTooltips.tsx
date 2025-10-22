@@ -2,6 +2,7 @@
 
 import { IServerResponse } from '@/types/generate.type'
 import {
+	ArrowRightLeft,
 	Book,
 	BookOpen,
 	CheckCircle,
@@ -48,81 +49,81 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 
 		return [
 			{
-				id: 'entropy-collection',
-				title: 'Сбор аппаратной энтропии',
+				id: 'get-entropy',
+				title: 'Получение энтропии',
 				content:
-					'Аппаратная энтропия — это истинная случайность, полученная от физических процессов в оборудовании. Наш API сервис предоставляет эти данные для максимальной непредсказуемости.',
+					'Клиент получает хэш энтропийных данных и зашифрованную энтропию от сервера. Эти данные служат основой для генерации случайных чисел и обеспечивают криптографическую безопасность.',
 				technical:
-					'Аппаратные генераторы энтропии используют физические процессы, такие как тепловой шум, квантовые эффекты или радиоактивный распад. Данные проходят через криптографическую верификацию для обеспечения аутентичности.',
+					'GET запрос к https://enthropy.bgitu-compass.ru/getEntropyHash возвращает entropyHash (хэш данных энтропии) и cryptedEntropy (зашифрованная энтропия). Хэш позволяет верифицировать подлинность данных энтропии, а зашифрованная энтропия идентифицирует конкретный набор данных для генерации.',
 				examples: [
-					'Тепловой шум в процессоре',
-					'Квантовые флуктуации',
-					'Электромагнитные помехи',
-					'Физические датчики случайности',
+					'GET /getEntropyHash',
+					'{"entropyHash": "a1b2c3...", "cryptedEntropy": "def456..."}',
+					'Верификация подлинности энтропии',
+					'Идентификация источника энтропии',
 				],
 				icon: <Link className='w-6 h-6 text-white' />,
 				color: '#ef4444',
 			},
 			{
-				id: 'genesis-hash',
-				title: 'Genesis Hash (SHA-512)',
+				id: 'prepare-request',
+				title: 'Подготовка запроса',
 				content:
-					'Genesis Hash — это результат хэширования энтропийных данных с дополнительной солью с использованием SHA-512.',
+					'Клиент формирует запрос с уникальным идентификатором, диапазоном чисел и количеством. Зашифрованная энтропия связывает запрос с конкретным источником случайности.',
 				technical:
-					'Процесс включает комбинирование аппаратной энтропии с криптографической солью и применение SHA-512. Это создаёт уникальный хэш, который служит основой для дальнейшей обработки.',
+					'Генерируется clientUUID для обеспечения уникальности запроса. Определяются параметры: interval (диапазон значений) и count (количество чисел). CryptedEntropy обеспечивает связь с конкретным источником энтропии для последующей верификации.',
 				examples: [
-					'SHA-512 хэширование',
-					'Добавление криптографической соли',
-					'Комбинирование энтропии',
-					'Создание seed для генератора',
-				],
-				icon: <Zap className='w-6 h-6 text-white' />,
-				color: '#8b5cf6',
-			},
-			{
-				id: 'uuid-generation',
-				title: 'Генерация UUID',
-				content:
-					'UUID (Universally Unique Identifier) генерируется на клиенте для обеспечения уникальности каждого запроса.',
-				technical:
-					'UUID v4 генерируется с использованием криптографически сильного псевдослучайного генератора. Версия 4 UUID содержит 122 бита случайности и добавляется к Genesis Hash.',
-				examples: [
-					'550e8400-e29b-41d4-a716-446655440000',
-					'123e4567-e89b-12d3-a456-426614174000',
-					'Клиентский UUID',
-					'Уникальность запроса',
+					'clientUUID: "550e8400-e29b-41d4-a716-446655440000"',
+					'interval: [1, 100]',
+					'count: 10',
+					'Подготовка параметров запроса',
 				],
 				icon: <Dices className='w-6 h-6 text-white' />,
 				color: '#22c55e',
 			},
 			{
-				id: 'hash-combination',
-				title: 'Комбинирование хэшей',
+				id: 'send-request',
+				title: 'Отправка запроса',
 				content:
-					'Genesis Hash и клиентский UUID объединяются с помощью криптографической хэш-функции для создания финального seed.',
+					'Сформированный запрос отправляется на сервер для генерации случайных чисел. Все параметры передаются в одном POST запросе.',
 				technical:
-					'Используется SHA-256 для детерминированного комбинирования Genesis Hash и UUID. Функция avalanche effect обеспечивает максимальную чувствительность к входным изменениям.',
+					'POST запрос к https://enthropy.bgitu-compass.ru/fullChain/GenerateRandomNumbers содержит clientUUID, interval, count и cryptedEntropy. Сервер использует эти параметры для генерации детерминированных, но непредсказуемых случайных чисел.',
 				examples: [
-					'SHA-256 комбинирование',
-					'Genesis Hash + UUID',
-					'Создание финального seed',
-					'Криптографическое смешивание',
+					'POST /fullChain/GenerateRandomNumbers',
+					'{"clientUUID": "...", "interval": [1,100], "count": 10}',
+					'Передача параметров на сервер',
+					'Инициация процесса генерации',
 				],
-				icon: <Link className='w-6 h-6 text-white' />,
+				icon: <ArrowRightLeft className='w-6 h-6 text-white' />,
 				color: '#06b6d4',
 			},
 			{
-				id: 'final-output',
-				title: 'Генерация результата',
+				id: 'server-processing',
+				title: 'Обработка на сервере',
 				content:
-					'Финальные случайные числа генерируются в указанном диапазоне и количестве на основе комбинированного хэша.',
+					'Сервер генерирует Genesis Hash путём хэширования энтропийных данных с клиентским UUID. Это обеспечивает криптографическую связь между источником энтропии и клиентом.',
 				technical:
-					'Алгоритм использует комбинированный хэш как seed для детерминированного псевдослучайного генератора. Обеспечивается равномерное распределение в заданном интервале.',
+					'Создаётся комбинация строки data (из энтропии) + clientUUID, которая хэшируется через SHA-512. Полученный genesisHash служит основой для генерации outputValues. Процесс предотвращает подбор хэша злоумышленниками с любой стороны.',
 				examples: [
-					'Числа в диапазоне [10, 100]',
-					'Криптографическая случайность',
-					'Равномерное распределение',
-					'Массив случайных значений',
+					'SHA-512 хэширование',
+					'data + clientUUID комбинирование',
+					'genesisHash: "f4a3b2c1..."',
+					'Криптографическая защита от подбора',
+				],
+				icon: <Zap className='w-6 h-6 text-white' />,
+				color: '#8b5cf6',
+			},
+			{
+				id: 'receive-results',
+				title: 'Получение результатов',
+				content:
+					'Клиент получает сгенерированные случайные числа, ссылку на источник энтропии и Genesis Hash. Эти данные позволяют верифицировать подлинность результата.',
+				technical:
+					'Ответ содержит outputValues (массив случайных чисел), entropyURL (ссылка на ресурс энтропии) и genesisHash. EntropyURL позволяет проверить источник данных энтропии, а genesisHash подтверждает правильность генерации.',
+				examples: [
+					'outputValues: [15, 67, 23, 89, 42]',
+					'entropyURL: "https://..."',
+					'genesisHash: "f4a3b2c1..."',
+					'Верификация результата',
 				],
 				icon: <Target className='w-6 h-6 text-white' />,
 				color: '#10b981',
@@ -220,46 +221,178 @@ const InteractiveTooltips: React.FC<InteractiveTooltipsProps> = ({
 
 								<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
 									<div className='text-gray-400 mb-2'>
-										{/* Technical Implementation */}
+										{/* Technical Implementation Details */}
 									</div>
-									<div className='text-green-300'>
-										Process:{' '}
-										<span className='text-yellow-300'>
-											{currentTooltip.title}
-										</span>
-									</div>
-									<div className='text-green-300'>
-										Method:{' '}
-										<span className='text-blue-300'>
-											Cryptographic algorithms
-										</span>
-									</div>
-									<div className='text-green-300'>
-										Security:{' '}
-										<span className='text-purple-300'>High-grade entropy</span>
-									</div>
-									<div className='text-green-300'>
-										Standard:{' '}
-										<span className='text-red-300'>
-											Industry best practices
-										</span>
-									</div>
-									<div className='text-green-300 mt-2'>
-										{/* Implementation details */}
-									</div>
-									<div className='text-green-300'>
-										const <span className='text-blue-300'>process</span> ={' '}
-										<span className='text-yellow-300'>executeStep</span>(
-										<span className='text-purple-300'>{currentStep + 1}</span>);
-									</div>
-									<div className='text-green-300'>
-										const <span className='text-blue-300'>result</span> ={' '}
-										<span className='text-blue-300'>process</span>.
-										<span className='text-yellow-300'>generate</span>();
-									</div>
-									<div className='text-gray-400 mt-2'>
-										{/* {currentTooltip.technical} */}
-									</div>
+
+									{(() => {
+										switch (currentTooltip.id) {
+											case 'get-entropy':
+												return (
+													<>
+														<div className='text-green-300'>
+															Endpoint:{' '}
+															<span className='text-yellow-300'>
+																GET /getEntropyHash
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Response:{' '}
+															<span className='text-blue-300'>
+																&#123;entropyHash, cryptedEntropy&#125;
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Security:{' '}
+															<span className='text-purple-300'>
+																Hash verification
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Entropy:{' '}
+															<span className='text-red-300'>
+																Hardware RNG sources
+															</span>
+														</div>
+													</>
+												)
+
+											case 'prepare-request':
+												return (
+													<>
+														<div className='text-green-300'>
+															Parameters:{' '}
+															<span className='text-yellow-300'>
+																clientUUID, interval, count
+															</span>
+														</div>
+														<div className='text-green-300'>
+															UUID:{' '}
+															<span className='text-blue-300'>
+																v4 (122-bit randomness)
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Range:{' '}
+															<span className='text-purple-300'>
+																[start, endInclusive]
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Entropy:{' '}
+															<span className='text-red-300'>
+																Previously obtained
+															</span>
+														</div>
+													</>
+												)
+
+											case 'send-request':
+												return (
+													<>
+														<div className='text-green-300'>
+															Method:{' '}
+															<span className='text-yellow-300'>POST</span>
+														</div>
+														<div className='text-green-300'>
+															URL:{' '}
+															<span className='text-blue-300'>
+																/fullChain/GenerateRandomNumbers
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Headers:{' '}
+															<span className='text-purple-300'>
+																Content-Type: application/json
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Body:{' '}
+															<span className='text-red-300'>
+																JSON parameters
+															</span>
+														</div>
+													</>
+												)
+
+											case 'server-processing':
+												return (
+													<>
+														<div className='text-green-300'>
+															Hash:{' '}
+															<span className='text-yellow-300'>
+																SHA-512 algorithm
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Input:{' '}
+															<span className='text-blue-300'>
+																data + clientUUID
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Output:{' '}
+															<span className='text-purple-300'>
+																genesisHash (512-bit)
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Security:{' '}
+															<span className='text-red-300'>
+																Avalanche effect
+															</span>
+														</div>
+													</>
+												)
+
+											case 'receive-results':
+												return (
+													<>
+														<div className='text-green-300'>
+															Values:{' '}
+															<span className='text-yellow-300'>
+																Array of numbers
+															</span>
+														</div>
+														<div className='text-green-300'>
+															URL:{' '}
+															<span className='text-blue-300'>
+																entropyURL for verification
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Hash:{' '}
+															<span className='text-purple-300'>
+																genesisHash confirmation
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Distribution:{' '}
+															<span className='text-red-300'>
+																Uniform in range
+															</span>
+														</div>
+													</>
+												)
+
+											default:
+												return (
+													<>
+														<div className='text-green-300'>
+															Process:{' '}
+															<span className='text-yellow-300'>
+																{currentTooltip.title}
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Status:{' '}
+															<span className='text-blue-300'>
+																Processing...
+															</span>
+														</div>
+													</>
+												)
+										}
+									})()}
 								</div>
 							</div>
 						)}

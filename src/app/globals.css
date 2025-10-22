@@ -201,3 +201,34 @@ body {
 .react-flow__edge-textbg {
 	fill: #f7f9fb;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #c1c1c1;
+	border-radius: 4px;
+	transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #a8a8a8;
+}
+
+::-webkit-scrollbar-corner {
+	background: #f1f1f1;
+}
+
+/* Firefox Scrollbar */
+html {
+	scrollbar-width: thin;
+	scrollbar-color: #c1c1c1 transparent;
+}

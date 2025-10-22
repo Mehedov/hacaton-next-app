@@ -28,6 +28,25 @@ interface FlowProps {
 	data: IServerResponse | null
 }
 
+interface BaseEdge {
+	id: string
+	source: string
+	target: string
+	type: string
+	markerEnd?: {
+		type: MarkerType
+		width?: number
+		height?: number
+		color?: string
+	}
+	style?: {
+		opacity?: number
+		transition?: string
+		strokeWidth?: number
+		stroke?: string
+	}
+}
+
 export default function Flow({ data }: FlowProps) {
 	const [nodes, setNodes] = useState<Node[]>(
 		initialNodes.map(node => ({
@@ -64,11 +83,11 @@ export default function Flow({ data }: FlowProps) {
 			}
 		}[]
 	>(
-		initialEdges.map(edge => ({
+		initialEdges.map((edge: BaseEdge) => ({
 			...edge,
 			style: {
 				opacity: 0,
-				...edge.style,
+				...(edge.style || {}),
 			},
 		}))
 	)

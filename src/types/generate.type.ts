@@ -1,6 +1,6 @@
 export interface IGetRequestUUIDHash {
-	requestUUIDHash: string
-  jwtRequestUUIDToken:string
+	entropyHash: string
+	encryptedEntropy: string
 }
 
 export interface IServerResponse {
@@ -8,13 +8,14 @@ export interface IServerResponse {
 		clientUUID: string
 		interval: [number, number]
 		count: number
-		jwtServerUUIDToken: string
+		encryptedEntropy: string
 	}
 	outputLayer: {
 		requestUUID: string
 		extraSalt: string
-		entropyData: {
+		entropy: {
 			data: string
+			entropyId: string
 			url: string
 		}
 		genesisHash: string

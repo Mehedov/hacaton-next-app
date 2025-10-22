@@ -1,9 +1,9 @@
 import { IGetRequestUUIDHash, IServerResponse } from '@/types/generate.type'
 import axios from 'axios'
 
-export const getRequestUUIDHash = () => {
+export const getEntropyHash = () => {
 	return axios.get<IGetRequestUUIDHash>(
-		`${process.env.NEXT_PUBLIC_SERVER_URL}/getRequestUUIDHash`,
+		`${process.env.NEXT_PUBLIC_SERVER_URL}/getEntropyHash`,
 		{
 			headers: {
 				'Content-Type': 'application/json',
@@ -16,7 +16,7 @@ export const generateRandomNumbers = (data: {
 	clientUUID: string
 	interval: [number, number]
 	count: number
-	jwtRequestUUIDToken: string
+	encryptedEntropy: string
 }) => {
 	return axios.post<IServerResponse>(
 		`${process.env.NEXT_PUBLIC_SERVER_URL}/fullChain/generateRandomNumbers`,

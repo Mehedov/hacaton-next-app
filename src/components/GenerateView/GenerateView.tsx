@@ -3,7 +3,7 @@
 import {
 	analyzeRandomNumbers,
 	generateRandomNumbers,
-	getRequestUUIDHash,
+	getEntropyHash,
 } from '@/service/generate.service'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setCount, setMin, setMax } from '@/store/intervalSlice'
@@ -44,13 +44,13 @@ export function GenerateView() {
 	const [countInput, setCountInput] = useState(count)
 	const { data, isLoading } = useQuery<{ data: IGetRequestUUIDHash }>({
 		queryKey: ['generate'],
-		queryFn: () => getRequestUUIDHash(),
+		queryFn: () => getEntropyHash(),
 	})
 
 	useEffect(() => {
 		if (data) {
-			Cookies.set('requestUUIDHash', data.data.requestUUIDHash)
-			Cookies.set('jwtRequestUUIDToken', data.data.jwtRequestUUIDToken)
+			Cookies.set('entropyHash', data.data.entropyHash)
+			Cookies.set('encryptedEntropy', data.data.encryptedEntropy)
 		}
 	}, [data, isLoading])
 
@@ -77,10 +77,10 @@ export function GenerateView() {
 			const newClientUUID = uuidv4()
 			setCurrentClientUUID(newClientUUID)
 
-			// Получаем токен из кук
-			const jwtToken = Cookies.get('jwtRequestUUIDToken')
-			if (!jwtToken) {
-				console.error('JWT token not found in cookies')
+			// Получаем encryptedEntropy из кук
+			const encryptedEntropy = Cookies.get('encryptedEntropy')
+			if (!encryptedEntropy) {
+				console.error('Encrypted entropy not found in cookies')
 				return
 			}
 
@@ -89,7 +89,7 @@ export function GenerateView() {
 				clientUUID: clientUUID,
 				interval: [min, max],
 				count: clampedCount,
-				jwtRequestUUIDToken: jwtToken,
+				encryptedEntropy: encryptedEntropy,
 			})
 			setRngData(response.data)
 
@@ -132,7 +132,7 @@ export function GenerateView() {
 					</p>
 
 					{/* Блок Client UUID в формате кода */}
-					<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-w-2xl mx-auto border border-gray-700'>
+					<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-w-2xl text-left mr-auto border border-gray-700'>
 						<div className='text-gray-400 mb-2'>
 							{/* Current Client UUID */}
 						</div>
@@ -142,11 +142,16 @@ export function GenerateView() {
 								{currentClientUUID || 'Генерируется...'}
 							</span>
 						</div>
-
+						<div className='text-green-300'>
+							Entropy Hash:{' '}
+							<span className='text-blue-300 break-all'>
+								{data?.data.entropyHash || 'Loading...'}
+							</span>
+						</div>
 						<div className='text-green-300'>
 							Status:{' '}
 							<span className='text-purple-300'>
-								{currentClientUUID ? 'Ready for request' : 'Waiting...'}
+								{data ? 'Ready for request' : 'Waiting...'}
 							</span>
 						</div>
 					</div>
@@ -225,7 +230,7 @@ export function GenerateView() {
 							<Button
 								onClick={generateNumber}
 								disabled={
-									isGenerating || !data || !Cookies.get('jwtRequestUUIDToken')
+									isGenerating || !data || !Cookies.get('encryptedEntropy')
 								}
 								size='large'
 								className='px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200'
@@ -279,7 +284,7 @@ export function GenerateView() {
 										<div className='flex items-center gap-3'>
 											<span className='text-cyan-400 w-16'>Seed:</span>
 											<span className='text-cyan-300 bg-gray-800 px-3 py-1 rounded border border-cyan-400/30'>
-												Combined entropy hash
+												{rngData.inputLayer.encryptedEntropy.substring(0, 32)}...
 											</span>
 										</div>
 									</div>

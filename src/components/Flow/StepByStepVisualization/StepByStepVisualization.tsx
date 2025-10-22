@@ -37,6 +37,10 @@ interface ProcessStep {
 		| number[]
 		| { server: string; client: string }
 		| { data: string; url: string }
+		| { entropyHash: string; cryptedEntropy: string; entropyURL: string }
+		| { clientUUID: string; interval: [number, number]; count: number; cryptedEntropy: string }
+		| { genesisHash: string; data: string; clientUUID: string }
+		| { outputValues: number[]; entropyURL: string; genesisHash: string }
 }
 
 const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
@@ -55,51 +59,65 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 
 		return [
 			{
-				id: 'entropy-collection',
-				title: 'Сбор аппаратной энтропии',
-				description: 'Получение энтропийных данных от нашего API сервиса',
+				id: 'get-entropy',
+				title: 'Получение энтропии',
+				description: 'GET запрос для получения entropyHash и cryptedEntropy',
 				icon: <Link className='w-6 h-6 text-white' />,
 				color: '#ef4444',
 				duration: 2000,
-				data: data.outputLayer.entropyData,
+				data: {
+					entropyHash: data.outputLayer.entropy.entropyId,
+					cryptedEntropy: data.inputLayer.encryptedEntropy,
+					entropyURL: data.outputLayer.entropy.url,
+				},
 			},
 			{
-				id: 'genesis-hash',
-				title: 'Genesis Hash (SHA-512)',
-				description: 'Хэширование энтропии с дополнительной солью',
-				icon: <Zap className='w-6 h-6 text-white' />,
-				color: '#8b5cf6',
-				duration: 1500,
-				data: data.outputLayer.genesisHash,
-			},
-			{
-				id: 'uuid-generation',
-				title: 'Генерация UUID',
-				description: 'Создание уникальных идентификаторов на клиенте',
+				id: 'prepare-request',
+				title: 'Подготовка запроса',
+				description: 'Ввод clientUUID, interval, count и cryptedEntropy',
 				icon: <Dices className='w-6 h-6 text-white' />,
 				color: '#22c55e',
 				duration: 1800,
 				data: {
-					server: data.outputLayer.requestUUID,
-					client: data.inputLayer.clientUUID,
+					clientUUID: data.inputLayer.clientUUID,
+					interval: data.inputLayer.interval,
+					count: data.inputLayer.count,
+					cryptedEntropy: data.inputLayer.encryptedEntropy,
 				},
 			},
 			{
-				id: 'hash-combination',
-				title: 'Комбинирование хэшей',
-				description: 'Объединение Genesis Hash и UUID',
+				id: 'send-request',
+				title: 'Отправка запроса',
+				description: 'POST запрос на генерацию случайных чисел',
 				icon: <ArrowRightLeft className='w-6 h-6 text-white' />,
 				color: '#06b6d4',
-				duration: 2500,
+				duration: 1500,
 			},
 			{
-				id: 'final-output',
-				title: 'Генерация результата',
-				description: 'Получение финальных случайных чисел',
+				id: 'server-processing',
+				title: 'Обработка на сервере',
+				description: 'Генерация genesisHash (SHA-512) и outputValues',
+				icon: <Zap className='w-6 h-6 text-white' />,
+				color: '#8b5cf6',
+				duration: 2500,
+				data: {
+					genesisHash: data.outputLayer.genesisHash,
+					data: data.outputLayer.entropy.data,
+					clientUUID: data.inputLayer.clientUUID,
+				},
+			},
+			{
+				id: 'receive-results',
+				title: 'Получение результатов',
+				description: 'Финальные случайные числа и entropyURL',
 				icon: <Target className='w-6 h-6 text-white' />,
 				color: '#10b981',
 				duration: 2000,
-				data: data.outputLayer.outputValues,
+				data: {
+					outputValues: data.outputLayer.outputValues,
+					entropyURL: data.outputLayer.entropy.url,
+					genesisHash: data.outputLayer.genesisHash,
+				},
 			},
 		]
 	}, [data])
@@ -257,203 +275,174 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 									if (!step) return null
 
 									switch (step.id) {
-										case 'entropy-collection':
+										case 'get-entropy':
 											const entropyData = step.data as {
-												url?: string
-												data?: string
-												timestamp?: number
+												entropyHash: string
+												cryptedEntropy: string
+												entropyURL: string
 											}
 											return (
 												<div className='space-y-3'>
 													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
 														<div className='text-gray-400 mb-2'>
-															{/* Hardware Entropy API Response */}
+															{/* GET /getEntropyHash Response */}
 														</div>
 														<div className='text-green-300'>
-															API:{' '}
-															<span className='text-yellow-300'>
-																{String(
-																	entropyData?.url ||
-																		'https://our-api.com/entropy'
-																)}
+															Entropy Hash:{' '}
+															<span className='text-yellow-300 break-all'>
+																{entropyData.entropyHash}
 															</span>
 														</div>
 														<div className='text-green-300'>
-															Data:{' '}
+															Crypted Entropy:{' '}
 															<span className='text-blue-300 break-all'>
-																{entropyData?.data ||
-																	'hardware_entropy_string_from_api'}
+																{entropyData.cryptedEntropy.substring(0, 32)}...
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Entropy URL:{' '}
+															<span className='text-purple-300'>
+																{entropyData.entropyURL}
 															</span>
 														</div>
 													</div>
 													<div className='bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400'>
 														<p className='text-sm text-blue-800'>
-															<strong>Процесс:</strong> Получение аппаратной
-															энтропии от нашего API сервиса для обеспечения
-															истинной случайности на аппаратном уровне.
+															<strong>Процесс:</strong> Получение хэша энтропии
+															и зашифрованной энтропии от сервера для
+															последующей генерации.
 														</p>
 													</div>
 												</div>
 											)
 
-										case 'genesis-hash':
-											return (
-												<div className='space-y-3'>
-													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
-														<div className='text-gray-400 mb-2'>
-															{/* Genesis Hash (SHA-512) */}
-														</div>
-														<div className='text-green-300'>
-															Hash:{' '}
-															<span className='text-yellow-300 break-all'>
-																{String(step.data).substring(0, 32)}...
-															</span>
-														</div>
-														<div className='text-green-300'>
-															Algorithm:{' '}
-															<span className='text-purple-300'>SHA-512</span>
-														</div>
-														<div className='text-green-300'>
-															Input:{' '}
-															<span className='text-blue-300'>
-																Entropy + Extra Salt
-															</span>
-														</div>
-													</div>
-													<div className='bg-purple-50 p-3 rounded-lg border-l-4 border-purple-400'>
-														<p className='text-sm text-purple-800'>
-															<strong>Процесс:</strong> Хэширование энтропийных
-															данных с дополнительной солью с использованием
-															SHA-512 для создания Genesis Hash.
-														</p>
-													</div>
-												</div>
-											)
-
-										case 'uuid-generation':
-											const uuidData = step.data as {
-												server?: string
-												client?: string
+										case 'prepare-request':
+											const requestData = step.data as {
+												clientUUID: string
+												interval: [number, number]
+												count: number
+												cryptedEntropy: string
 											}
 											return (
 												<div className='space-y-3'>
 													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
 														<div className='text-gray-400 mb-2'>
-															{/* UUID Generation (v4) */}
-														</div>
-														<div className='text-green-300'>
-															Server UUID:{' '}
-															<span className='text-yellow-300 break-all'>
-																{uuidData?.server ||
-																	'550e8400-e29b-41d4-a716-446655440000'}
-															</span>
+															{/* POST Request Parameters */}
 														</div>
 														<div className='text-green-300'>
 															Client UUID:{' '}
 															<span className='text-blue-300 break-all'>
-																{uuidData?.client ||
-																	'123e4567-e89b-12d3-a456-426614174000'}
+																{requestData.clientUUID}
 															</span>
 														</div>
 														<div className='text-green-300'>
-															Version:{' '}
+															Interval:{' '}
+															<span className='text-yellow-300'>
+																[{requestData.interval[0]},{' '}
+																{requestData.interval[1]}]
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Count:{' '}
 															<span className='text-purple-300'>
-																4 (Random)
+																{requestData.count}
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Crypted Entropy:{' '}
+															<span className='text-red-300 break-all'>
+																{requestData.cryptedEntropy.substring(0, 32)}...
 															</span>
 														</div>
 													</div>
 													<div className='bg-green-50 p-3 rounded-lg border-l-4 border-green-400'>
 														<p className='text-sm text-green-800'>
-															<strong>Процесс:</strong> Генерация уникальных
-															идентификаторов для сервера и клиента с
-															использованием криптографически сильного RNG.
+															<strong>Процесс:</strong> Подготовка параметров
+															для POST запроса на генерацию случайных чисел.
 														</p>
 													</div>
 												</div>
 											)
 
-										case 'salt-addition':
+										case 'send-request':
 											return (
 												<div className='space-y-3'>
 													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
 														<div className='text-gray-400 mb-2'>
-															{/* Cryptographic Salt */}
+															{/* POST /fullChain/GenerateRandomNumbers */}
 														</div>
 														<div className='text-green-300'>
-															Salt:{' '}
-															<span className='text-yellow-300 break-all'>
-																{String(step.data).substring(0, 32)}...
-															</span>
-														</div>
-														<div className='text-green-300'>
-															Length:{' '}
-															<span className='text-purple-300'>
-																{String(step.data).length} characters
-															</span>
-														</div>
-														<div className='text-green-300'>
-															Entropy:{' '}
-															<span className='text-blue-300'>
-																High (Random)
-															</span>
-														</div>
-													</div>
-													<div className='bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400'>
-														<p className='text-sm text-yellow-800'>
-															<strong>Процесс:</strong> Добавление случайной
-															соли для предотвращения атак по словарю и rainbow
-															table.
-														</p>
-													</div>
-												</div>
-											)
-
-										case 'hash-combination':
-											return (
-												<div className='space-y-3'>
-													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
-														<div className='text-gray-400 mb-2'>
-															{/* Hash Combination Process */}
-														</div>
-														<div className='text-green-300'>
-															Function:{' '}
-															<span className='text-purple-300'>SHA-256</span>
-														</div>
-														<div className='text-green-300'>
-															Input:{' '}
-															<span className='text-blue-300'>
-																Genesis Hash + Client UUID
-															</span>
-														</div>
-														<div className='text-green-300'>
-															Output:{' '}
+															Endpoint:{' '}
 															<span className='text-yellow-300'>
-																64-character hex string
+																https://enthropy.bgitu-compass.ru/fullChain/GenerateRandomNumbers
 															</span>
 														</div>
 														<div className='text-green-300'>
-															Avalanche:{' '}
-															<span className='text-red-300'>
-																Maximum sensitivity
-															</span>
+															Method:{' '}
+															<span className='text-purple-300'>POST</span>
 														</div>
 													</div>
 													<div className='bg-cyan-50 p-3 rounded-lg border-l-4 border-cyan-400'>
 														<p className='text-sm text-cyan-800'>
-															<strong>Процесс:</strong> Комбинирование Genesis
-															Hash и клиентского UUID с использованием
-															хэш-функции SHA-256 для создания финального seed.
+															<strong>Процесс:</strong> Отправка POST запроса с
+															параметрами для генерации случайных чисел.
 														</p>
 													</div>
 												</div>
 											)
 
-										case 'final-output':
+										case 'server-processing':
+											const serverData = step.data as {
+												genesisHash: string
+												data: string
+												clientUUID: string
+											}
 											return (
 												<div className='space-y-3'>
 													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
 														<div className='text-gray-400 mb-2'>
-															{/* Final Random Numbers */}
+															{/* Server Processing */}
+														</div>
+														<div className='text-green-300'>
+															Genesis Hash (SHA-512):{' '}
+															<span className='text-yellow-300 break-all'>
+																{serverData.genesisHash.substring(0, 32)}...
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Data:{' '}
+															<span className='text-blue-300 break-all'>
+																{serverData.data.substring(0, 32)}...
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Client UUID:{' '}
+															<span className='text-purple-300 break-all'>
+																{serverData.clientUUID}
+															</span>
+														</div>
+													</div>
+													<div className='bg-purple-50 p-3 rounded-lg border-l-4 border-purple-400'>
+														<p className='text-sm text-purple-800'>
+															<strong>Процесс:</strong> Сервер генерирует
+															Genesis Hash путем хэширования data + clientUUID с
+															SHA-512 и вычисляет outputValues.
+														</p>
+													</div>
+												</div>
+											)
+
+										case 'receive-results':
+											const resultsData = step.data as {
+												outputValues: number[]
+												entropyURL: string
+												genesisHash: string
+											}
+											return (
+												<div className='space-y-3'>
+													<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto border border-gray-700'>
+														<div className='text-gray-400 mb-2'>
+															{/* Final Results */}
 														</div>
 														<div className='text-green-300'>
 															Range:{' '}
@@ -469,13 +458,19 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 															</span>
 														</div>
 														<div className='text-green-300'>
-															Seed:{' '}
+															Entropy URL:{' '}
 															<span className='text-blue-300'>
-																Combined entropy hash
+																{resultsData.entropyURL}
+															</span>
+														</div>
+														<div className='text-green-300'>
+															Genesis Hash:{' '}
+															<span className='text-red-300 break-all'>
+																{resultsData.genesisHash.substring(0, 32)}...
 															</span>
 														</div>
 														<div className='flex flex-wrap gap-1 mt-2'>
-															{(step.data as number[])
+															{resultsData.outputValues
 																.slice(0, 8)
 																.map((val, idx) => (
 																	<span
@@ -485,19 +480,19 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 																		{val}
 																	</span>
 																))}
-															{(step.data as number[]).length > 8 && (
+															{resultsData.outputValues.length > 8 && (
 																<span className='text-gray-400 text-xs'>
-																	... +{(step.data as number[]).length - 8} more
+																	... +{resultsData.outputValues.length - 8}{' '}
+																	more
 																</span>
 															)}
 														</div>
 													</div>
 													<div className='bg-green-50 p-3 rounded-lg border-l-4 border-green-400'>
 														<p className='text-sm text-green-800'>
-															<strong>Процесс:</strong> Генерация финальных
-															случайных чисел в указанном диапазоне с
-															использованием комбинированного хэша как seed для
-															детерминированного генератора.
+															<strong>Процесс:</strong> Получение финальных
+															случайных чисел, entropyURL и genesisHash от
+															сервера.
 														</p>
 													</div>
 												</div>

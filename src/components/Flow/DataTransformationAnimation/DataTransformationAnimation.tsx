@@ -34,10 +34,10 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 		if (!data || !isAnimating) return
 
 		const steps = [
-			{ name: 'entropy', data: data.outputLayer.entropyData.data, color: '#ef4444' },
-			{ name: 'genesis', data: data.outputLayer.genesisHash, color: '#8b5cf6' },
+			{ name: 'entropy', data: data.outputLayer.entropy.data, color: '#ef4444' },
 			{ name: 'uuid', data: data.inputLayer.clientUUID, color: '#22c55e' },
-			{ name: 'combined', data: data.outputLayer.requestUUID, color: '#06b6d4' },
+			{ name: 'request', data: data.outputLayer.requestUUID, color: '#06b6d4' },
+			{ name: 'genesis', data: data.outputLayer.genesisHash, color: '#8b5cf6' },
 			{ name: 'output', data: data.outputLayer.outputValues, color: '#10b981' },
 		]
 
@@ -143,7 +143,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 			<div className='absolute top-4 left-4 z-10'>
 				<h4 className='text-gray-800 text-lg font-bold mb-1 flex items-center gap-2'>
 					<ArrowRightLeft className="w-6 h-6" />
-					<span>Трансформация энтропии</span>
+					<span>Трансформация этапов процесса</span>
 				</h4>
 				<p className='text-gray-600 text-sm'>
 					Фаза: {getPhaseDescription()}
