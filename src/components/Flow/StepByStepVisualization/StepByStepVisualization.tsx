@@ -474,13 +474,13 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 																Combined entropy hash
 															</span>
 														</div>
-														<div className='flex flex-wrap gap-1 mt-2 font-mono text-sm'>
+														<div className='flex flex-wrap gap-1 mt-2'>
 															{(step.data as number[])
 																.slice(0, 8)
 																.map((val, idx) => (
 																	<span
 																		key={idx}
-																		className='bg-transparent text-gray-800 px-2 py-1 rounded border border-gray-300'
+																		className='bg-green-600 text-white px-2 py-1 rounded text-xs animate-pulse'
 																	>
 																		{val}
 																	</span>

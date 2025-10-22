@@ -1,6 +1,5 @@
 'use client'
 
-import EntropyFlowVisualization from '@/components/Flow/EntropyFlowVisualization/EntropyFlowVisualization'
 import SoundEffects from '@/components/Flow/SoundEffects/SoundEffects'
 import StepByStepVisualization from '@/components/Flow/StepByStepVisualization/StepByStepVisualization'
 import { IServerResponse } from '@/types/generate.type'
@@ -87,8 +86,6 @@ function VisualizationContent() {
 
 			{/* Основное содержимое */}
 			<div className='w-full mx-auto px-6 py-8 space-y-8'>
-				<EntropyFlowVisualization data={data} isActive={isAnimationPlaying} />
-
 				{/* Информация о генерации вверху */}
 				<div className='bg-gradient-to-br mt-16 rounded-xl p-8'>
 					<div className='max-w-6xl mx-auto'>
