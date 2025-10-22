@@ -1,5 +1,7 @@
 'use client'
 
+import ServerAlgorithmVisualization from '@/components/Flow/ServerAlgorithmVisualization/ServerAlgorithmVisualization'
+import ServerDataVisualization from '@/components/Flow/ServerDataVisualization/ServerDataVisualization'
 import SoundEffects from '@/components/Flow/SoundEffects/SoundEffects'
 import StepByStepVisualization from '@/components/Flow/StepByStepVisualization/StepByStepVisualization'
 import { IServerResponse } from '@/types/generate.type'
@@ -85,10 +87,10 @@ function VisualizationContent() {
 			</div>
 
 			{/* Основное содержимое */}
-			<div className='w-full mx-auto px-6 py-8 space-y-8'>
+			<div className='w-full max-w-none mx-auto px-8 py-8 space-y-8'>
 				{/* Информация о генерации вверху */}
 				<div className='bg-gradient-to-br mt-16 rounded-xl p-8'>
-					<div className='max-w-6xl mx-auto'>
+					<div className='max-w-none mx-auto'>
 						{/* Заголовок блока */}
 						<div className='text-center mb-8'>
 							<h3 className='text-3xl font-bold mb-2'>
@@ -225,6 +227,23 @@ function VisualizationContent() {
 
 				{/* Две колонки для дополнительных визуализаций (сверху) */}
 				{/* Поток энтропии */}
+
+				{/* Server Data Visualization - Подробная схема алгоритма сервера */}
+				<div className='bg-white rounded-2xl p-8'>
+					<ServerDataVisualization
+						data={data}
+						isLoading={false}
+						error={null}
+					/>
+				</div>
+
+				{/* Server Algorithm Visualization - Графическая схема алгоритма */}
+				<div className='bg-white rounded-2xl p-8'>
+					<ServerAlgorithmVisualization
+						data={data}
+						isVisible={true}
+					/>
+				</div>
 
 				{/* Пошаговая визуализация (снизу) */}
 				<div className='bg-white rounded-2xl p-8'>

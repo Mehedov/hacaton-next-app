@@ -51,7 +51,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 	const [currentStep, setCurrentStep] = useState(0)
 	const [isAnimating, setIsAnimating] = useState(false)
 	const [isCompleted, setIsCompleted] = useState(false)
-	const [showInteractiveTooltips, setShowInteractiveTooltips] = useState(true)
+	const [showInteractiveTooltips, setShowInteractiveTooltips] = useState(false)
 	const tooltipsRef = React.useRef<HTMLDivElement>(null)
 
 	const steps: ProcessStep[] = React.useMemo(() => {
@@ -150,17 +150,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 		return () => clearTimeout(timer)
 	}, [currentStep, isPlaying, steps])
 
-	// Эффект для автопрокрутки к блоку подсказок
-	useEffect(() => {
-		if (showInteractiveTooltips && tooltipsRef.current) {
-			setTimeout(() => {
-				tooltipsRef.current?.scrollIntoView({
-					behavior: 'smooth',
-					block: 'start',
-				})
-			}, 100)
-		}
-	}, [showInteractiveTooltips])
+	// Эффект для автопрокрутки к блоку подсказок (убран автоматический скролл при загрузке)
 
 	const handleStepClick = (stepIndex: number) => {
 		// Всегда просто переключаемся на выбранный этап для просмотра
@@ -510,21 +500,6 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 								})()}
 							</div>
 
-							{/* Кнопка подробнее */}
-							<div className='mt-6 text-center'>
-								<button
-									onClick={() => {
-										tooltipsRef.current?.scrollIntoView({
-											behavior: 'smooth',
-											block: 'start',
-										})
-									}}
-									className='px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl transform hover:scale-105'
-								>
-									<Info className='w-5 h-5' />
-									<span>Подробнее об этом этапе</span>
-								</button>
-							</div>
 
 							{/* Animated Particles */}
 							{isAnimating && (
@@ -717,13 +692,43 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				</div>
 			</div>
 
-			<div className='mt-8' ref={tooltipsRef}>
-				<InteractiveTooltips
-					data={data}
-					currentStep={currentStep}
-					isVisible={true}
-					onStepChange={step => setCurrentStep(step)}
-				/>
+			{/* Кнопка для показа детального объяснения */}
+			<div className='mt-8 text-center' ref={tooltipsRef}>
+				{!showInteractiveTooltips ? (
+					<button
+						onClick={() => {
+							setShowInteractiveTooltips(true)
+							// Скролл к блоку подсказок через небольшую задержку
+							setTimeout(() => {
+								tooltipsRef.current?.scrollIntoView({
+									behavior: 'smooth',
+									block: 'start',
+								})
+							}, 100)
+						}}
+						className='px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl transform hover:scale-105'
+					>
+						<Info className='w-5 h-5' />
+						<span>Показать детальное объяснение</span>
+					</button>
+				) : (
+					<div className='space-y-4'>
+						<div className='flex justify-center mb-4'>
+							<button
+								onClick={() => setShowInteractiveTooltips(false)}
+								className='px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all duration-200 flex items-center gap-2'
+							>
+								<span>❌ Скрыть объяснение</span>
+							</button>
+						</div>
+						<InteractiveTooltips
+							data={data}
+							currentStep={currentStep}
+							isVisible={showInteractiveTooltips}
+							onStepChange={step => setCurrentStep(step)}
+						/>
+					</div>
+				)}
 			</div>
 		</div>
 	)

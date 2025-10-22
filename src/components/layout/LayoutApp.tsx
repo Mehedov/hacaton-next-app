@@ -12,12 +12,12 @@ const LayoutApp = ({ children }: PropsWithChildren) => {
 
 	return (
 		<Layout>
-			<Content className='min-h-screen' style={{ padding: '0 48px' }}>
+			<Content className='min-h-screen' style={{ padding: '0 24px' }}>
 				<div
 					style={{
 						background: colorBgContainer,
 						minHeight: 280,
-						padding: 24,
+						padding: 12,
 						borderRadius: borderRadiusLG,
 						margin: '16px 0',
 					}}

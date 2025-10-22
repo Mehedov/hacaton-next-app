@@ -119,7 +119,7 @@ export default function Flow({ data }: FlowProps) {
 		setVisibleEdges([])
 
 		const nodeOrder = [
-			'1-1', // API Nist
+			'1-1', // Linux -> hardware entropy
 			'1-2', // Entropy
 			'2-2', // Genesis Hash
 			'5-0', // UUID Server
@@ -140,7 +140,7 @@ export default function Flow({ data }: FlowProps) {
 
 		// Порядок появления рёбер (на основе порядка узлов)
 		const edgeOrder = [
-			'e1-2', // API Nist -> Entropy
+			'e1-2', // hardware entropy
 			'e1-3', // Entropy -> Genesis Hash
 			'e5-0-5-2', // UUID Server -> extra_salt
 			'e5-2-5-1', // extra_salt -> UUID Client

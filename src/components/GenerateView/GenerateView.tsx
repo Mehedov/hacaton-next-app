@@ -6,7 +6,7 @@ import {
 	getEntropyHash,
 } from '@/service/generate.service'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { setCount, setMin, setMax } from '@/store/intervalSlice'
+import { setCount, setMax, setMin } from '@/store/intervalSlice'
 import {
 	IAnalysisResponse,
 	IGetRequestUUIDHash,
@@ -20,7 +20,6 @@ import {
 	CheckCircle,
 	Dices,
 	ExternalLink,
-	Save,
 	Settings,
 	Zap,
 } from 'lucide-react'
@@ -65,7 +64,6 @@ export function GenerateView() {
 		const clientUUID = uuidv4()
 		setCurrentClientUUID(clientUUID)
 	}, [])
-
 
 	const generateNumber = async () => {
 		if (!data || !currentClientUUID) return
@@ -120,7 +118,7 @@ export function GenerateView() {
 
 	return (
 		<div className='min-h-screen from-blue-50 to-indigo-100 flex items-center justify-center p-8'>
-			<div className='max-w-4xl mx-auto'>
+			<div className='max-w-[900px] mx-auto'>
 				{/* Заголовок */}
 				<div className='text-center mb-12'>
 					<h1 className='text-4xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-3'>
@@ -132,7 +130,7 @@ export function GenerateView() {
 					</p>
 
 					{/* Блок Client UUID в формате кода */}
-					<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-w-2xl text-left mr-auto border border-gray-700'>
+					<div className='bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-w-[1000px] text-left mr-auto border border-gray-700'>
 						<div className='text-gray-400 mb-2'>
 							{/* Current Client UUID */}
 						</div>
@@ -284,7 +282,8 @@ export function GenerateView() {
 										<div className='flex items-center gap-3'>
 											<span className='text-cyan-400 w-16'>Seed:</span>
 											<span className='text-cyan-300 bg-gray-800 px-3 py-1 rounded border border-cyan-400/30'>
-												{rngData.inputLayer.encryptedEntropy.substring(0, 32)}...
+												{rngData.inputLayer.encryptedEntropy.substring(0, 32)}
+												...
 											</span>
 										</div>
 									</div>

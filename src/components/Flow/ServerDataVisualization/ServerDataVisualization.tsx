@@ -1,6 +1,7 @@
 'use client'
 
 import { IDataNode, IServerResponse } from '@/types/generate.type'
+import { Copy, Database, Info, InfoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 
 interface ServerDataVisualizationProps {
@@ -88,25 +89,18 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 				description: 'Количество случайных чисел для генерации',
 			},
 			{
-				id: 'serverUUID',
-				label: 'UUID Сервера',
-				value: data.outputLayer.requestUUID,
+				id: 'entropyId',
+				label: 'Entropy ID',
+				value: data.outputLayer.entropy.entropyId,
 				type: 'string',
-				description: 'Уникальный идентификатор сервера',
-			},
-			{
-				id: 'extraSalt',
-				label: 'Дополнительная соль',
-				value: data.outputLayer.extraSalt,
-				type: 'string',
-				description: 'Дополнительная соль для повышения безопасности',
+				description: 'Идентификатор энтропийных данных',
 			},
 			{
 				id: 'entropyData',
 				label: 'Данные энтропии',
 				value: data.outputLayer.entropy.data,
 				type: 'string',
-				description: 'Энтропийные данные от NIST',
+				description: 'Аппаратные энтропийные данные',
 			},
 			{
 				id: 'entropyUrl',
@@ -152,7 +146,7 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 									}
 									title='Копировать полное значение'
 								>
-									📋
+									<Copy className='w-3 h-3' />
 								</button>
 							</div>
 						) : node.id === 'entropyUrl' ? (
@@ -220,7 +214,9 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 		<div className='w-full max-w-6xl mx-auto p-5'>
 			<div className='text-center mb-8 pb-4 border-b-2 border-gray-200'>
 				<h3 className='text-gray-800 text-2xl font-semibold mb-2'>
-					📊 Данные от сервера
+					<div className='flex items-center justify-center gap-1.5 mb-2'>
+						<Database /> Данные от сервера
+					</div>
 				</h3>
 				<div className='text-gray-500 text-sm'>
 					{new Date().toLocaleString('ru-RU')}
@@ -255,15 +251,167 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 											{node.label}
 										</span>
 										<div
-											className='w-5 h-5 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 cursor-help hover:bg-blue-500 hover:text-white transition-colors'
+											className='w-5 h-5borderflex items-center justify-center text-xs text-gray-500 cursor-help  transition-colors'
 											title={node.description}
 										>
-											ℹ️
+											<Info className='w-5 h-5' />
 										</div>
 									</div>
 									{renderValue(node)}
 								</div>
 							))}
+					</div>
+				</div>
+
+				{/* Подробная схема алгоритма сервера */}
+				<div className='bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-lg p-6 border border-indigo-200'>
+					<h4 className='text-lg font-medium mb-5 text-gray-800 flex items-center gap-2'>
+						<div className='w-3 h-3 bg-indigo-500 rounded-full animate-pulse'></div>
+						Подробная схема алгоритма сервера
+					</h4>
+
+					{/* Процесс серверного алгоритма */}
+					<div className='space-y-4'>
+						{/* Шаг 1: Получение и декодирование энтропии */}
+						<div className='bg-white rounded-lg p-4 border-l-4 border-blue-500 shadow-sm'>
+							<div className='flex items-center gap-3 mb-2'>
+								<div className='w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold'>
+									1
+								</div>
+								<h5 className='font-semibold text-gray-800'>
+									Декодирование энтропии
+								</h5>
+							</div>
+							<div className='ml-11 space-y-2'>
+								<p className='text-sm text-gray-600'>
+									<strong>cryptedEntropy</strong> декодируется приватным ключом
+									сервера
+								</p>
+								<div className='bg-gray-900 text-green-400 p-3 rounded font-mono text-xs'>
+									<div className='text-blue-300'>Input:</div>
+									<div className='text-yellow-300 ml-2'>
+										cryptedEntropy = &quot;
+										{data.inputLayer.encryptedEntropy.substring(0, 16)}...&quot;
+									</div>
+									<div className='text-blue-300 mt-1'>Process:</div>
+									<div className='text-green-300 ml-2'>
+										decrypt(cryptedEntropy, privateKey) → entropyId
+									</div>
+								</div>
+							</div>
+						</div>
+
+						{/* Шаг 2: Получение данных энтропии */}
+						<div className='bg-white rounded-lg p-4 border-l-4 border-purple-500 shadow-sm'>
+							<div className='flex items-center gap-3 mb-2'>
+								<div className='w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold'>
+									2
+								</div>
+								<h5 className='font-semibold text-gray-800'>
+									Получение энтропийных данных
+								</h5>
+							</div>
+							<div className='ml-11 space-y-2'>
+								<p className='text-sm text-gray-600'>
+									Сервер получает истинно случайные данные от внешнего источника
+									энтропии
+								</p>
+								<div className='bg-gray-900 text-green-400 p-3 rounded font-mono text-xs'>
+									<div className='text-blue-300'>Source:</div>
+									<div className='text-yellow-300 ml-2'>Hardware Entropy</div>
+									<div className='text-blue-300 mt-1'>Data:</div>
+									<div className='text-green-300 ml-2 break-all'>
+										{data.outputLayer.entropy.data.substring(0, 32)}...
+									</div>
+									<div className='text-blue-300 mt-1'>URL:</div>
+									<div className='text-purple-300 ml-2 break-all'>
+										<a
+											href={data.outputLayer.entropy.url}
+											target='_blank'
+											rel='noopener noreferrer'
+											className='underline'
+										>
+											{data.outputLayer.entropy.url}
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						{/* Шаг 3: Генерация Genesis Hash */}
+						<div className='bg-white rounded-lg p-4 border-l-4 border-green-500 shadow-sm'>
+							<div className='flex items-center gap-3 mb-2'>
+								<div className='w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold'>
+									3
+								</div>
+								<h5 className='font-semibold text-gray-800'>
+									Генерация Genesis Hash
+								</h5>
+							</div>
+							<div className='ml-11 space-y-2'>
+								<p className='text-sm text-gray-600'>
+									Комбинирование энтропийных данных с клиентским UUID через
+									SHA-512
+								</p>
+								<div className='bg-gray-900 text-green-400 p-3 rounded font-mono text-xs'>
+									<div className='text-blue-300'>Algorithm:</div>
+									<div className='text-yellow-300 ml-2'>SHA-512</div>
+									<div className='text-blue-300 mt-1'>Input:</div>
+									<div className='text-green-300 ml-2'>data + clientUUID</div>
+									<div className='text-blue-300 mt-1'>Output:</div>
+									<div className='text-red-300 ml-2 break-all'>
+										genesisHash = &quot;
+										{data.outputLayer.genesisHash.substring(0, 32)}...&quot;
+									</div>
+									<div className='text-gray-400 text-xs mt-2 ml-2'>
+										&#47;&#47; Защищает от подбора хэша злоумышленниками
+									</div>
+								</div>
+							</div>
+						</div>
+
+						{/* Шаг 4: Генерация случайных чисел */}
+						<div className='bg-white rounded-lg p-4 border-l-4 border-orange-500 shadow-sm'>
+							<div className='flex items-center gap-3 mb-2'>
+								<div className='w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold'>
+									4
+								</div>
+								<h5 className='font-semibold text-gray-800'>
+									Генерация случайных чисел
+								</h5>
+							</div>
+							<div className='ml-11 space-y-2'>
+								<p className='text-sm text-gray-600'>
+									Генерация детерминированных случайных чисел в указанном
+									диапазоне
+								</p>
+								<div className='bg-gray-900 text-green-400 p-3 rounded font-mono text-xs'>
+									<div className='text-blue-300'>Parameters:</div>
+									<div className='text-yellow-300 ml-2'>
+										Range: [{data.inputLayer.interval[0]},{' '}
+										{data.inputLayer.interval[1]}]
+									</div>
+									<div className='text-yellow-300 ml-2'>
+										Count: {data.inputLayer.count} numbers
+									</div>
+									<div className='text-blue-300 mt-1'>Seed:</div>
+									<div className='text-green-300 ml-2'>
+										genesisHash (512-bit)
+									</div>
+									<div className='text-blue-300 mt-1'>Result:</div>
+									<div className='flex flex-wrap gap-1 mt-2'>
+										{data.outputLayer.outputValues.map((val, idx) => (
+											<span
+												key={idx}
+												className='bg-orange-600 text-white px-2 py-1 rounded text-xs'
+											>
+												{val}
+											</span>
+										))}
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -296,10 +444,10 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 											{node.label}
 										</span>
 										<div
-											className='w-5 h-5 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 cursor-help hover:bg-blue-500 hover:text-white transition-colors'
+											className='w-5 h-5 flex items-center justify-center text-xs text-gray-500 cursor-help transition-colors'
 											title={node.description}
 										>
-											ℹ️
+											<InfoIcon className='w-5 h-5 ' />
 										</div>
 									</div>
 									{renderValue(node)}
