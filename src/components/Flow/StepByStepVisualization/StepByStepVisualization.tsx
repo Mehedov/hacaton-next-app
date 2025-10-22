@@ -12,12 +12,7 @@ import {
 	Play,
 	Pause,
 	RotateCcw,
-	Info,
-	ChevronLeft,
-	ChevronRight,
 	CheckCircle,
-	Clock,
-	ArrowRight,
 	Rocket
 } from 'lucide-react'
 import DataTransformationAnimation from '../DataTransformationAnimation/DataTransformationAnimation'
@@ -455,7 +450,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 						</p>
 					) : (
 						<p className='text-gray-600'>
-							Нажмите "Воспроизвести" для запуска процесса
+							Нажмите &quot;Воспроизвести&quot; для запуска процесса
 						</p>
 					)}
 				</div>

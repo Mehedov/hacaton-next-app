@@ -3,12 +3,7 @@
 import { Layout, theme } from 'antd'
 import { PropsWithChildren } from 'react'
 
-const { Header, Content } = Layout
-
-const items = Array.from({ length: 15 }).map((_, index) => ({
-	key: index + 1,
-	label: `nav ${index + 1}`,
-}))
+const { Content } = Layout
 
 const LayoutApp = ({ children }: PropsWithChildren) => {
 	const {

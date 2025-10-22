@@ -83,7 +83,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 		}, 800)
 
 		return () => clearInterval(phaseInterval)
-	}, [dataBlocks, isAnimating])
+	}, [dataBlocks.length, isAnimating])
 
 	// Анимация блоков данных
 	useEffect(() => {
@@ -121,7 +121,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 
 		const animationFrame = requestAnimationFrame(animate)
 		return () => cancelAnimationFrame(animationFrame)
-	}, [animationPhase])
+	}, [animationPhase, dataBlocks.length])
 
 	if (!data || dataBlocks.length === 0) {
 		return null
@@ -212,7 +212,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 					</defs>
 
 					{/* Линии обработки */}
-					{dataBlocks.map((block, index) => (
+					{dataBlocks.map((block) => (
 						<g key={`line-${block.id}`}>
 							{/* Линия от блока к центру обработки */}
 							<line

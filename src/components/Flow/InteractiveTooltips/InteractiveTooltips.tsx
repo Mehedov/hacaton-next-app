@@ -4,12 +4,9 @@ import React, { useState } from 'react'
 import { IServerResponse } from '@/types/generate.type'
 import {
 	BookOpen,
-	HelpCircle,
 	ChevronLeft,
 	ChevronRight,
 	CheckCircle,
-	Clock,
-	ArrowRight,
 	Book,
 	Microscope,
 	Lightbulb,
