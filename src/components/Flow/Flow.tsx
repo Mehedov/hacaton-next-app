@@ -11,6 +11,11 @@ import {
 import { IServerResponse } from '@/types/generate.type'
 import { useCallback, useEffect, useState } from 'react'
 import ServerDataVisualization from './ServerDataVisualization/ServerDataVisualization'
+import StepByStepVisualization from './StepByStepVisualization/StepByStepVisualization'
+import EntropyFlowVisualization from './EntropyFlowVisualization/EntropyFlowVisualization'
+import DataTransformationAnimation from './DataTransformationAnimation/DataTransformationAnimation'
+import InteractiveTooltips from './InteractiveTooltips/InteractiveTooltips'
+import SoundEffects from './SoundEffects/SoundEffects'
 
 import '@xyflow/react/dist/style.css'
 import {
@@ -71,7 +76,22 @@ export default function Flow({ data }: FlowProps) {
 
 	const [visibleNodes, setVisibleNodes] = useState<string[]>([])
 	const [visibleEdges, setVisibleEdges] = useState<string[]>([])
+	const [currentAnimationStep, setCurrentAnimationStep] = useState(0)
+	const [isAnimationPlaying, setIsAnimationPlaying] = useState(false)
+	const [showInteractiveTooltips, setShowInteractiveTooltips] = useState(false)
 	const connection = useConnection()
+
+	// Обработчик для закрытия подсказок через событие
+	useEffect(() => {
+		const handleCloseTooltips = () => setShowInteractiveTooltips(false)
+		window.addEventListener('close-tooltips', handleCloseTooltips)
+		return () => window.removeEventListener('close-tooltips', handleCloseTooltips)
+	}, [])
+
+	// Обработчик для смены шага в подсказках
+	const handleTooltipStepChange = (step: number) => {
+		setCurrentAnimationStep(step)
+	}
 
 	useEffect(() => {
 		if (!data) return
@@ -96,6 +116,7 @@ export default function Flow({ data }: FlowProps) {
 		nodeOrder.forEach((nodeId, index) => {
 			setTimeout(() => {
 				setVisibleNodes(prev => [...prev, nodeId])
+				setCurrentAnimationStep(index)
 			}, index * 500) // 500ms между появлениями узлов
 		})
 
@@ -205,6 +226,19 @@ export default function Flow({ data }: FlowProps) {
 		)
 	}, [])
 
+	// Обработчики для новых компонентов
+	const handleToggleAnimation = () => {
+		setIsAnimationPlaying(!isAnimationPlaying)
+		if (currentAnimationStep === 0 && !isAnimationPlaying) {
+			// Сбрасываем состояние при повторном запуске
+			setCurrentAnimationStep(0)
+		}
+	}
+
+	const handleTooltipToggle = () => {
+		setShowInteractiveTooltips(!showInteractiveTooltips)
+	}
+
 	return (
 		<div className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-5'>
 			<div className='max-w-9xl mx-auto space-y-6'>
@@ -216,7 +250,71 @@ export default function Flow({ data }: FlowProps) {
 						error={error}
 					/>
 				</div>
-				{/* Flow Visualization */}
+
+				{/* Advanced Visualizations */}
+				{serverData && (
+					<>
+						{/* Step-by-Step Visualization */}
+						<div className='bg-white rounded-xl shadow-lg p-4'>
+							<StepByStepVisualization
+								data={serverData}
+								isPlaying={isAnimationPlaying}
+								onTogglePlay={handleToggleAnimation}
+							/>
+						</div>
+
+						{/* Entropy Flow Visualization */}
+						<div className='bg-white rounded-xl shadow-lg p-4'>
+							<EntropyFlowVisualization
+								data={serverData}
+								isActive={isAnimationPlaying}
+							/>
+						</div>
+
+						{/* Data Transformation Animation */}
+						<div className='bg-white rounded-xl shadow-lg p-4'>
+							<DataTransformationAnimation
+								data={serverData}
+								currentStep={currentAnimationStep}
+								isAnimating={isAnimationPlaying}
+							/>
+						</div>
+
+						{/* Interactive Tooltips */}
+						<div className='bg-white rounded-xl shadow-lg p-4'>
+							<div className='flex justify-between items-center mb-4'>
+								<h3 className='text-xl font-bold text-gray-800'>
+									Интерактивные подсказки
+								</h3>
+								<button
+									onClick={handleTooltipToggle}
+									className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+										showInteractiveTooltips
+											? 'bg-red-500 hover:bg-red-600 text-white'
+											: 'bg-blue-500 hover:bg-blue-600 text-white'
+									}`}
+								>
+									{showInteractiveTooltips ? '❌ Закрыть' : '❓ Показать подсказки'}
+								</button>
+							</div>
+							<InteractiveTooltips
+								data={serverData}
+								currentStep={currentAnimationStep}
+								isVisible={showInteractiveTooltips}
+								onStepChange={handleTooltipStepChange}
+							/>
+						</div>
+
+						{/* Sound Effects */}
+						<SoundEffects
+							isActive={isAnimationPlaying}
+							currentStep={currentAnimationStep}
+							eventType={isAnimationPlaying ? 'step_change' : 'completion'}
+						/>
+					</>
+				)}
+
+				{/* Original Flow Visualization */}
 				{serverData && (
 					<div className='bg-white rounded-xl shadow-lg p-4 h-[500px] relative overflow-hidden'>
 						<ReactFlow
