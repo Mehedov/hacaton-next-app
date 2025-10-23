@@ -53,7 +53,6 @@ export function GenerateView() {
 		if (data) {
 			Cookies.set('entropyHash', data.data.entropyHash)
 			Cookies.set('encryptedEntropy', data.data.encryptedEntropy)
-			Cookies.set('clientUUID', currentClientUUID)
 		}
 	}, [data, isLoading, currentClientUUID])
 
@@ -66,6 +65,7 @@ export function GenerateView() {
 	// Генерируем clientUUID при загрузке страницы для первой генерации
 	useEffect(() => {
 		const clientUUID = uuidv4()
+		Cookies.set('clientUUID', clientUUID)
 		setCurrentClientUUID(clientUUID)
 	}, [])
 
@@ -73,10 +73,8 @@ export function GenerateView() {
 		if (!data || !currentClientUUID) return
 		setIsGenerating(true)
 		try {
-			// Генерируем новый clientUUID для каждой генерации
-			const clientUUID = uuidv4()
-			Cookies.set('clientUUID', clientUUID)
-			setCurrentClientUUID(clientUUID)
+			// Используем существующий clientUUID для генерации
+			const clientUUID = currentClientUUID
 
 			// Получаем encryptedEntropy из кук
 			const encryptedEntropy = Cookies.get('encryptedEntropy')
@@ -93,8 +91,7 @@ export function GenerateView() {
 			})
 			setRngData(response.data)
 
-			// Обновляем entropyHash после генерации
-			queryClient.refetchQueries({ queryKey: ['generate'] })
+			// Не обновляем entropyHash при генерации
 
 			// Автоматический запуск анализа сгенерированных чисел
 			if (response.data.outputLayer.outputValues.length >= 50) {
