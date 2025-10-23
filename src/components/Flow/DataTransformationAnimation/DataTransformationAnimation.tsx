@@ -1,13 +1,22 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
 import { IServerResponse } from '@/types/generate.type'
-import { ArrowRightLeft, Upload, Settings, Download, Loader2, CheckCircle } from 'lucide-react'
+import {
+	ArrowRightLeft,
+	CheckCircle,
+	Download,
+	Loader2,
+	Settings,
+	Upload,
+} from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface DataTransformationAnimationProps {
 	data: IServerResponse | null
 	currentStep: number
 	isAnimating: boolean
+	onAnimationComplete?: () => void
+	currentStepTitle?: string
 }
 
 interface DataBlock {
@@ -21,20 +30,203 @@ interface DataBlock {
 	size: number
 }
 
-const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = ({
+const generateLogForPhase = (
+	phase: 'input' | 'processing' | 'output',
+	step: number,
+	data: IServerResponse | null
+): string => {
+	if (!data) return ''
+
+	const steps = [
+		{ name: 'entropy', data: data.outputLayer.entropy.data, color: '#ef4444' },
+		{ name: 'uuid', data: data.inputLayer.clientUUID, color: '#22c55e' },
+		{ name: 'request', data: data.outputLayer.requestUUID, color: '#06b6d4' },
+		{ name: 'genesis', data: data.outputLayer.genesisHash, color: '#8b5cf6' },
+		{ name: 'output', data: data.outputLayer.outputValues, color: '#10b981' },
+	]
+
+	const currentStepData = steps[step]
+	if (!currentStepData) return ''
+
+	const timestamp = new Date().toLocaleTimeString('ru-RU')
+	const dataStr = String(currentStepData.data).substring(0, 10)
+
+	switch (phase) {
+		case 'input':
+			return `[${timestamp}] Сбор данных: Загрузка ${currentStepData.name} (${dataStr}...)`
+		case 'processing':
+			return `[${timestamp}] Обработка: Трансформация ${currentStepData.name} с применением алгоритма`
+		case 'output':
+			return `[${timestamp}] Генерация результата: Сложение ${currentStepData.name} с предыдущими данными`
+		default:
+			return ''
+	}
+}
+
+const getLogsForPhase = (
+	phase: 'input' | 'processing' | 'output',
+	step: number,
+	data: IServerResponse | null,
+	currentStepTitle?: string
+): string[] => {
+	if (!data) return []
+
+	const timestamp = new Date().toLocaleTimeString('ru-RU')
+	const stepTitle = currentStepTitle || `Шаг ${step + 1}`
+
+	// Уникальные логи для каждого currentStep по схеме алгоритма
+	switch (step) {
+		case 0: // Получение энтропии
+			switch (phase) {
+				case 'input':
+					return [
+						`[${timestamp}] ${stepTitle}: Инициализация GET запроса`,
+						`[${timestamp}] ${stepTitle}: Отправка запроса на получение энтропии`,
+						`[${timestamp}] ${stepTitle}: Получение entropyHash и encryptedEntropy`,
+					]
+				case 'processing':
+					return [
+						`[${timestamp}] ${stepTitle}: Валидация полученных данных`,
+						`[${timestamp}] ${stepTitle}: Декодирование encryptedEntropy`,
+						`[${timestamp}] ${stepTitle}: Данные энтропии готовы`,
+					]
+				case 'output':
+					return [
+						`[${timestamp}] ${stepTitle}: Entropy Hash: ${data.outputLayer.entropy.entropyId.substring(0, 20)}...`,
+						`[${timestamp}] ${stepTitle}: Encrypted Entropy: ${data.inputLayer.encryptedEntropy.substring(0, 20)}...`,
+						`[${timestamp}] ${stepTitle}: Entropy URL: ${data.outputLayer.entropy.url}`,
+					]
+				default:
+					return []
+			}
+		case 1: // Подготовка запроса
+			switch (phase) {
+				case 'input':
+					return [
+						`[${timestamp}] ${stepTitle}: Сбор параметров запроса`,
+						`[${timestamp}] ${stepTitle}: Client UUID: ${data.inputLayer.clientUUID.substring(0, 15)}...`,
+						`[${timestamp}] ${stepTitle}: Интервал: [${data.inputLayer.interval[0]}, ${data.inputLayer.interval[1]}]`,
+					]
+				case 'processing':
+					return [
+						`[${timestamp}] ${stepTitle}: Валидация параметров`,
+						`[${timestamp}] ${stepTitle}: Подготовка POST запроса`,
+						`[${timestamp}] ${stepTitle}: Параметры готовы для отправки`,
+					]
+				case 'output':
+					return [
+						`[${timestamp}] ${stepTitle}: Количество: ${data.inputLayer.count}`,
+						`[${timestamp}] ${stepTitle}: Request UUID: ${data.outputLayer.requestUUID.substring(0, 15)}...`,
+						`[${timestamp}] ${stepTitle}: Запрос подготовлен`,
+					]
+				default:
+					return []
+			}
+		case 2: // Отправка запроса
+			switch (phase) {
+				case 'input':
+					return [
+						`[${timestamp}] ${stepTitle}: Инициализация POST запроса`,
+						`[${timestamp}] ${stepTitle}: Endpoint: https://enthropy.bgitu-compass.ru/fullChain/GenerateRandomNumbers`,
+						`[${timestamp}] ${stepTitle}: Отправка данных на сервер`,
+					]
+				case 'processing':
+					return [
+						`[${timestamp}] ${stepTitle}: Сервер получает запрос`,
+						`[${timestamp}] ${stepTitle}: Аутентификация клиента`,
+						`[${timestamp}] ${stepTitle}: Обработка запроса`,
+					]
+				case 'output':
+					return [
+						`[${timestamp}] ${stepTitle}: Запрос отправлен успешно`,
+						`[${timestamp}] ${stepTitle}: Ожидание ответа сервера`,
+						`[${timestamp}] ${stepTitle}: Соединение установлено`,
+					]
+				default:
+					return []
+			}
+		case 3: // Обработка на сервере
+			switch (phase) {
+				case 'input':
+					return [
+						`[${timestamp}] ${stepTitle}: Получение данных для хэширования`,
+						`[${timestamp}] ${stepTitle}: Entropy Data: ${data.outputLayer.entropy.data.substring(0, 20)}...`,
+						`[${timestamp}] ${stepTitle}: Client UUID: ${data.inputLayer.clientUUID.substring(0, 15)}...`,
+					]
+				case 'processing':
+					return [
+						`[${timestamp}] ${stepTitle}: Применение SHA-512 алгоритма`,
+						`[${timestamp}] ${stepTitle}: Генерация Genesis Hash`,
+						`[${timestamp}] ${stepTitle}: Вычисление случайных чисел`,
+					]
+				case 'output':
+					return [
+						`[${timestamp}] ${stepTitle}: Genesis Hash: ${data.outputLayer.genesisHash.substring(0, 20)}...`,
+						`[${timestamp}] ${stepTitle}: Диапазон: [${data.inputLayer.interval[0]}, ${data.inputLayer.interval[1]}]`,
+						`[${timestamp}] ${stepTitle}: Количество: ${data.inputLayer.count}`,
+					]
+				default:
+					return []
+			}
+		case 4: // Получение результатов
+			switch (phase) {
+				case 'input':
+					return [
+						`[${timestamp}] ${stepTitle}: Получение ответа от сервера`,
+						`[${timestamp}] ${stepTitle}: Валидация genesisHash`,
+						`[${timestamp}] ${stepTitle}: Проверка случайных чисел`,
+					]
+				case 'processing':
+					return [
+						`[${timestamp}] ${stepTitle}: Обработка финальных данных`,
+						`[${timestamp}] ${stepTitle}: Подготовка ответа клиенту`,
+						`[${timestamp}] ${stepTitle}: Верификация результатов`,
+					]
+				case 'output':
+					const outputValues = data.outputLayer.outputValues
+					const displayValues = outputValues.length > 10
+						? outputValues.slice(0, 5).join(', ') + `... (+${outputValues.length - 5} еще)`
+						: outputValues.join(', ')
+
+					return [
+						`[${timestamp}] ${stepTitle}: Финальные случайные числа: ${displayValues}`,
+						`[${timestamp}] ${stepTitle}: Entropy URL: ${data.outputLayer.entropy.url}`,
+						`[${timestamp}] ${stepTitle}: Процесс генерации завершен`,
+					]
+				default:
+					return []
+			}
+		default:
+			return []
+	}
+}
+
+const DataTransformationAnimation: React.FC<
+	DataTransformationAnimationProps
+> = ({
 	data,
 	currentStep,
 	isAnimating,
+	onAnimationComplete,
+	currentStepTitle,
 }) => {
 	const [dataBlocks, setDataBlocks] = useState<DataBlock[]>([])
-	const [animationPhase, setAnimationPhase] = useState<'input' | 'processing' | 'output'>('input')
+	const [animationPhase, setAnimationPhase] = useState<
+		'input' | 'processing' | 'output'
+	>('input')
+	const [logs, setLogs] = useState<string[]>([])
+	const logsRef = useRef<HTMLDivElement>(null)
 
 	// Создание блоков данных на основе текущего этапа
 	useEffect(() => {
 		if (!data || !isAnimating) return
 
 		const steps = [
-			{ name: 'entropy', data: data.outputLayer.entropy.data, color: '#ef4444' },
+			{
+				name: 'entropy',
+				data: data.outputLayer.entropy.data,
+				color: '#ef4444',
+			},
 			{ name: 'uuid', data: data.inputLayer.clientUUID, color: '#22c55e' },
 			{ name: 'request', data: data.outputLayer.requestUUID, color: '#06b6d4' },
 			{ name: 'genesis', data: data.outputLayer.genesisHash, color: '#8b5cf6' },
@@ -46,12 +238,13 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 
 		// Создаем блоки данных для текущего этапа
 		const blocks: DataBlock[] = []
-		const blockCount = Math.min(String(currentStepData.data).length, 8)
+		const dataLength = String(currentStepData.data).length
+		const blockCount = Math.max(1, Math.min(dataLength, 8)) // Минимум 1 блок
 
 		for (let i = 0; i < blockCount; i++) {
 			blocks.push({
 				id: `block-${currentStep}-${i}`,
-				content: String(currentStepData.data)[i] || '?',
+				content: dataLength > 0 ? String(currentStepData.data)[i] || '?' : '?',
 				x: Math.random() * 100,
 				y: Math.random() * 100,
 				targetX: 50 + (i - blockCount / 2) * 10,
@@ -63,26 +256,72 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 
 		setDataBlocks(blocks)
 		setAnimationPhase('input')
+		// Не очищать логи, чтобы сохранить все этапы
 	}, [data, currentStep, isAnimating])
 
 	// Анимация трансформации
 	useEffect(() => {
 		if (dataBlocks.length === 0 || !isAnimating) return
 
-		const phases = ['input', 'processing', 'output'] as const
-		let phaseIndex = 0
+		const phases: ('input' | 'processing' | 'output')[] = [
+			'input',
+			'processing',
+			'output',
+		]
+		let currentPhaseIndex = 0
+		let cycleCount = 0
 
-		const phaseInterval = setInterval(() => {
-			setAnimationPhase(phases[phaseIndex % phases.length])
-			phaseIndex++
+		// Не очищать логи, чтобы сохранить все этапы
 
-			if (phaseIndex >= phases.length * 2) {
-				clearInterval(phaseInterval)
-			}
-		}, 800)
+		const runPhase = (phase: 'input' | 'processing' | 'output') => {
+			setAnimationPhase(phase)
 
-		return () => clearInterval(phaseInterval)
-	}, [dataBlocks.length, isAnimating])
+			// Получаем логи для фазы
+			const logsForPhase = getLogsForPhase(
+				phase,
+				currentStep,
+				data,
+				currentStepTitle
+			)
+
+			// Добавляем логи с задержкой
+			logsForPhase.forEach((log, index) => {
+				setTimeout(() => {
+					setLogs(prev => [...prev, log])
+				}, index * 300) // 0.3 секунды между логами
+			})
+
+			// После всех логов, перейти к следующей фазе
+			setTimeout(() => {
+				currentPhaseIndex++
+				if (currentPhaseIndex < phases.length) {
+					runPhase(phases[currentPhaseIndex])
+				} else {
+					// Проверить, нужно ли повторить цикл
+					cycleCount++
+					if (cycleCount < 1) {
+						currentPhaseIndex = 0
+						setTimeout(() => runPhase(phases[0]), 500) // Задержка перед повтором
+					} else {
+						// Остановить после 2 циклов
+						setAnimationPhase('output')
+						// Сигнализировать о завершении
+						onAnimationComplete?.()
+					}
+				}
+			}, logsForPhase.length * 300 + 500) // Дополнительная задержка после логов
+		}
+
+		// Начать с первой фазы
+		runPhase(phases[0])
+	}, [dataBlocks.length, isAnimating, currentStep, data])
+
+	// Автоматический скролл к низу при добавлении логов
+	useEffect(() => {
+		if (logsRef.current) {
+			logsRef.current.scrollTop = logsRef.current.scrollHeight
+		}
+	}, [logs])
 
 	// Анимация блоков данных
 	useEffect(() => {
@@ -105,7 +344,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 							break
 						case 'output':
 							targetX = 50 + (Math.random() - 0.5) * 20
-							targetY = 70 + Math.random() * 20
+							targetY = 40 + Math.random() * 20
 							break
 					}
 
@@ -138,16 +377,14 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 	}
 
 	return (
-		<div className='relative w-full h-80 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200 overflow-hidden'>
+		<div className='relative w-full h-96 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200 overflow-hidden'>
 			{/* Заголовок */}
 			<div className='absolute top-4 left-4 z-10'>
 				<h4 className='text-gray-800 text-lg font-bold mb-1 flex items-center gap-2'>
-					<ArrowRightLeft className="w-6 h-6" />
+					<ArrowRightLeft className='w-6 h-6' />
 					<span>Трансформация этапов процесса</span>
 				</h4>
-				<p className='text-gray-600 text-sm'>
-					Фаза: {getPhaseDescription()}
-				</p>
+				<p className='text-gray-600 text-sm'>Фаза: {getPhaseDescription()}</p>
 			</div>
 
 			{/* Области этапов */}
@@ -155,7 +392,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 				{/* Входная зона */}
 				<div className='absolute top-4 left-4 right-4 h-16 bg-blue-100 rounded-lg border-2 border-blue-300 border-dashed'>
 					<div className='flex items-center justify-center h-full text-blue-600 font-semibold gap-2'>
-						<Upload className="w-5 h-5" />
+						<Upload className='w-5 h-5' />
 						<span>Входные данные</span>
 					</div>
 				</div>
@@ -163,15 +400,15 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 				{/* Зона обработки */}
 				<div className='absolute top-24 left-4 right-4 h-16 bg-purple-100 rounded-lg border-2 border-purple-300 border-dashed'>
 					<div className='flex items-center justify-center h-full text-purple-600 font-semibold gap-2'>
-						<Settings className="w-5 h-5" />
+						<Settings className='w-5 h-5' />
 						<span>Обработка</span>
 					</div>
 				</div>
 
 				{/* Выходная зона */}
-				<div className='absolute bottom-4 left-4 right-4 h-16 bg-green-100 rounded-lg border-2 border-green-300 border-dashed'>
+				<div className='absolute bottom-39 left-4 right-4 h-16 bg-green-100 rounded-lg border-2 border-green-300 border-dashed'>
 					<div className='flex items-center justify-center h-full text-green-600 font-semibold gap-2'>
-						<Download className="w-5 h-5" />
+						<Download className='w-5 h-5' />
 						<span>Результат</span>
 					</div>
 				</div>
@@ -203,7 +440,13 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 			{animationPhase === 'processing' && (
 				<svg className='absolute inset-0 w-full h-full pointer-events-none'>
 					<defs>
-						<linearGradient id='processingGradient' x1='0%' y1='0%' x2='100%' y2='0%'>
+						<linearGradient
+							id='processingGradient'
+							x1='0%'
+							y1='0%'
+							x2='100%'
+							y2='0%'
+						>
 							<stop offset='0%' stopColor='#8b5cf6' stopOpacity={0.3} />
 							<stop offset='50%' stopColor='#8b5cf6' stopOpacity={0.8} />
 							<stop offset='100%' stopColor='#8b5cf6' stopOpacity={0.3} />
@@ -211,7 +454,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 					</defs>
 
 					{/* Линии обработки */}
-					{dataBlocks.map((block) => (
+					{dataBlocks.map(block => (
 						<g key={`line-${block.id}`}>
 							{/* Линия от блока к центру обработки */}
 							<line
@@ -257,7 +500,7 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 							key={i}
 							className='absolute w-2 h-2 bg-purple-400 rounded-full opacity-60 animate-ping'
 							style={{
-								left: `${20 + (i * 5)}%`,
+								left: `${20 + i * 5}%`,
 								top: `${35 + Math.sin(i) * 10}%`,
 								animationDelay: `${i * 100}ms`,
 								animationDuration: '1.5s',
@@ -268,17 +511,35 @@ const DataTransformationAnimation: React.FC<DataTransformationAnimationProps> = 
 			)}
 
 			{/* Индикатор прогресса трансформации */}
-			<div className='absolute bottom-4 right-4'>
+			<div className='absolute bottom-43 right-4'>
 				<div className='bg-white bg-opacity-90 rounded-lg p-3 shadow-lg'>
 					<div className='flex items-center gap-2 text-sm text-gray-700'>
 						{isAnimating ? (
-							<Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+							<Loader2 className='w-4 h-4 text-blue-500 animate-spin' />
 						) : (
-							<CheckCircle className="w-4 h-4 text-green-500" />
+							<CheckCircle className='w-4 h-4 text-green-500' />
 						)}
-						<span>{isAnimating ? `Этап ${currentStep + 1}/5` : 'Процесс завершен'}</span>
+						<span>
+							{isAnimating ? `Этап ${currentStep + 1}/5` : 'Процесс завершен'}
+						</span>
 					</div>
 				</div>
+			</div>
+
+			{/* Логи в стиле терминала */}
+			<div
+				ref={logsRef}
+				className='absolute bottom-0 left-0 right-0 h-35 bg-gray-900 text-green-400 p-2 font-mono text-xs overflow-y-auto overflow-x-hidden border-t border-gray-700'
+			>
+				<div className='mb-1 text-gray-500'>Terminal Logs:</div>
+				{logs.map((log, index) => (
+					<div key={index} className='mb-1 break-all'>
+						{log}
+					</div>
+				))}
+				{logs.length === 0 && (
+					<div className='text-gray-500'>Ожидание начала процесса...</div>
+				)}
 			</div>
 		</div>
 	)
