@@ -9,6 +9,7 @@ import Cookies from 'js-cookie'
 import {
 	CheckCircle,
 	Database,
+	ExternalLink,
 	Home,
 	Link as LinkIcon,
 	Theater,
@@ -82,6 +83,15 @@ function VisualizationContent() {
 								<Home className='w-5 h-5' />
 								<span>На главную</span>
 							</Link>
+							<a
+								href='https://colab.research.google.com/drive/138t_s8CY4GnR_xRY1uM0f0qAc-tQPpQL'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors duration-200 flex items-center gap-2'
+							>
+								<ExternalLink className='w-5 h-5' />
+								<span>Проверка ГСЧ</span>
+							</a>
 						</div>
 					</div>
 				</div>
