@@ -82,7 +82,7 @@ function VisualizationContent() {
 								<span>На главную</span>
 							</Link>
 							<Link
-							target='_blank'
+								target='_blank'
 								href='https://colab.research.google.com/drive/138t_s8CY4GnR_xRY1uM0f0qAc-tQPpQL'
 								className='px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors duration-200 flex items-center gap-2'
 							>
@@ -96,7 +96,7 @@ function VisualizationContent() {
 			{/* Основное содержимое */}
 			<div className='w-full max-w-none mx-auto px-8 py-8 space-y-8'>
 				{/* Информация о генерации вверху */}
-				<div className='bg-gradient-to-br rounded-xl p-8'>
+				<div className='bg-gradient-to-br mt-16 rounded-xl p-8'>
 					<div className='max-w-none mx-auto'>
 						{/* Заголовок блока */}
 						<div className='text-center mb-8'>
@@ -223,7 +223,7 @@ function VisualizationContent() {
 											Entropy Hash
 										</h5>
 										<p className='text-sm text-gray-300 font-mono break-all'>
-											{data.outputLayer.entropy.entropyId}
+											{Cookies.get('oldEntropyHash')}
 										</p>
 									</div>
 									<div className='bg-gradient-to-r from-gray-800 to-gray-700 border border-cyan-400/20 rounded-lg p-4 hover:border-cyan-400/40 transition-colors duration-300'>

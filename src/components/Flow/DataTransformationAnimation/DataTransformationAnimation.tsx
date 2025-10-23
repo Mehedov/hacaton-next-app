@@ -344,7 +344,7 @@ const DataTransformationAnimation: React.FC<
 							break
 						case 'output':
 							targetX = 50 + (Math.random() - 0.5) * 20
-							targetY = 40 + Math.random() * 20
+							targetY = 55 + Math.random() * 15
 							break
 					}
 
@@ -406,7 +406,7 @@ const DataTransformationAnimation: React.FC<
 				</div>
 
 				{/* Выходная зона */}
-				<div className='absolute bottom-39 left-4 right-4 h-16 bg-green-100 rounded-lg border-2 border-green-300 border-dashed'>
+				<div className='absolute bottom-29 left-4 right-4 h-16 bg-green-100 rounded-lg border-2 border-green-300 border-dashed'>
 					<div className='flex items-center justify-center h-full text-green-600 font-semibold gap-2'>
 						<Download className='w-5 h-5' />
 						<span>Результат</span>
@@ -511,7 +511,7 @@ const DataTransformationAnimation: React.FC<
 			)}
 
 			{/* Индикатор прогресса трансформации */}
-			<div className='absolute bottom-43 right-4'>
+			<div className='absolute bottom-33 right-4'>
 				<div className='bg-white bg-opacity-90 rounded-lg p-3 shadow-lg'>
 					<div className='flex items-center gap-2 text-sm text-gray-700'>
 						{isAnimating ? (
@@ -529,11 +529,11 @@ const DataTransformationAnimation: React.FC<
 			{/* Логи в стиле терминала */}
 			<div
 				ref={logsRef}
-				className='absolute bottom-0 left-0 right-0 h-35 bg-gray-900 text-green-400 p-2 font-mono text-xs overflow-y-auto overflow-x-hidden border-t border-gray-700'
+				className='absolute bottom-0 left-0 right-0 h-25 bg-gray-900 text-green-400 p-2 font-mono text-xs overflow-y-auto border-t border-gray-700'
 			>
 				<div className='mb-1 text-gray-500'>Terminal Logs:</div>
 				{logs.map((log, index) => (
-					<div key={index} className='mb-1 break-all'>
+					<div key={index} className='mb-1'>
 						{log}
 					</div>
 				))}
