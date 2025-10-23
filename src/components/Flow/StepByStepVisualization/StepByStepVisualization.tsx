@@ -128,7 +128,8 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 	}, [data])
 
 	useEffect(() => {
-		// Запускаем анимацию при смене currentStep
+		// Запускаем анимацию при смене currentStep только если isPlaying true и не completed
+		if (!isPlaying || isCompleted) return
 		if (steps.length === 0) return
 
 		const step = steps[currentStep]
@@ -138,7 +139,14 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 
 		// Анимация завершится через onAnimationComplete в DataTransformationAnimation
 
-	}, [currentStep, steps])
+	}, [currentStep, steps, isPlaying, isCompleted])
+
+	useEffect(() => {
+		// Запускаем анимацию при переключении isPlaying на true, если не completed
+		if (isPlaying && !isAnimating && !isCompleted && steps.length > 0) {
+			setIsAnimating(true)
+		}
+	}, [isPlaying, isAnimating, isCompleted, steps])
 
 	// Эффект для автопрокрутки к блоку подсказок (убран автоматический скролл при загрузке)
 
@@ -641,7 +649,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 								const nextStep = prev + 1
 								if (nextStep >= steps.length) {
 									setIsCompleted(true)
-									return steps.length - 1
+									return prev // Не менять currentStep, чтобы избежать повторного запуска
 								}
 								return nextStep
 							})
