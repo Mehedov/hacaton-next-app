@@ -53,8 +53,9 @@ export function GenerateView() {
 		if (data) {
 			Cookies.set('entropyHash', data.data.entropyHash)
 			Cookies.set('encryptedEntropy', data.data.encryptedEntropy)
+			Cookies.set('clientUUID', currentClientUUID)
 		}
-	}, [data, isLoading])
+	}, [data, isLoading, currentClientUUID])
 
 	useEffect(() => {
 		setMinInput(min)
@@ -72,11 +73,10 @@ export function GenerateView() {
 		if (!data || !currentClientUUID) return
 		setIsGenerating(true)
 		try {
-			// Используем существующий clientUUID для первой генерации, затем генерируем новый
-			const clientUUID = currentClientUUID
-			// Генерируем новый UUID для следующих генераций
-			const newClientUUID = uuidv4()
-			setCurrentClientUUID(newClientUUID)
+			// Генерируем новый clientUUID для каждой генерации
+			const clientUUID = uuidv4()
+			Cookies.set('clientUUID', clientUUID)
+			setCurrentClientUUID(clientUUID)
 
 			// Получаем encryptedEntropy из кук
 			const encryptedEntropy = Cookies.get('encryptedEntropy')
@@ -213,12 +213,12 @@ export function GenerateView() {
 										value={countInput}
 										onChange={e => {
 											const value = Number(e.target.value)
-											const clampedValue = Math.min(Math.max(value, 1), 1000)
+											const clampedValue = Math.min(Math.max(value, 1), 1000000)
 											setCountInput(clampedValue)
 											dispatch(setCount(clampedValue))
 										}}
 										min={1}
-										max={1000}
+										max={1000000}
 										className='text-center text-lg h-12'
 									/>
 								</div>

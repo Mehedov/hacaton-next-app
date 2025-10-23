@@ -5,6 +5,7 @@ import ServerDataVisualization from '@/components/Flow/ServerDataVisualization/S
 import SoundEffects from '@/components/Flow/SoundEffects/SoundEffects'
 import StepByStepVisualization from '@/components/Flow/StepByStepVisualization/StepByStepVisualization'
 import { IServerResponse } from '@/types/generate.type'
+import Cookies from 'js-cookie'
 import {
 	CheckCircle,
 	Database,
@@ -14,7 +15,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
 
 function VisualizationContent() {
 	const [data, setData] = useState<IServerResponse | null>(null)
@@ -208,7 +208,7 @@ function VisualizationContent() {
 											Клиентский UUID
 										</h5>
 										<p className='text-sm text-gray-300 font-mono break-all'>
-											{data.inputLayer.clientUUID}
+											{Cookies.get('clientUUID')}
 										</p>
 									</div>
 									<div className='bg-gradient-to-r from-gray-800 to-gray-700 border border-purple-400/20 rounded-lg p-4 hover:border-purple-400/40 transition-colors duration-300'>
@@ -231,19 +231,12 @@ function VisualizationContent() {
 
 				{/* Server Data Visualization - Подробная схема алгоритма сервера */}
 				<div className='bg-white rounded-2xl p-8'>
-					<ServerDataVisualization
-						data={data}
-						isLoading={false}
-						error={null}
-					/>
+					<ServerDataVisualization data={data} isLoading={false} error={null} />
 				</div>
 
 				{/* Server Algorithm Visualization - Графическая схема алгоритма */}
 				<div className='bg-white rounded-2xl p-8'>
-					<ServerAlgorithmVisualization
-						data={data}
-						isVisible={true}
-					/>
+					<ServerAlgorithmVisualization data={data} isVisible={true} />
 				</div>
 
 				{/* Пошаговая визуализация (снизу) */}
