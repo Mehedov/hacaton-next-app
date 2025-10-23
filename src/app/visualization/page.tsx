@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
 
 function VisualizationContent() {
 	const [data, setData] = useState<IServerResponse | null>(null)
@@ -216,7 +217,7 @@ function VisualizationContent() {
 											Entropy Hash
 										</h5>
 										<p className='text-sm text-gray-300 font-mono break-all'>
-											{data.outputLayer.entropy.entropyId}
+											{Cookies.get('oldEntropyHash')}
 										</p>
 									</div>
 								</div>
@@ -260,6 +261,17 @@ function VisualizationContent() {
 					currentStep={currentStep}
 					eventType={isAnimationPlaying ? 'step_change' : 'completion'}
 				/>
+
+				{/* Кнопка вернуться на главную */}
+				<div className='mt-8 text-center'>
+					<Link
+						href='/'
+						className='px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-blue-400/30 flex items-center gap-3 mx-auto'
+					>
+						<Home className='w-6 h-6' />
+						<span>Вернуться на главную</span>
+					</Link>
+				</div>
 			</div>
 		</div>
 	)

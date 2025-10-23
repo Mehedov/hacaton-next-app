@@ -164,7 +164,7 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 								title={String(node.value)}
 							>
 								{String(node.value).length > 50
-									? `${String(node.value).substring(0, 50)}...`
+									? `${node.value}`
 									: String(node.value)}
 							</span>
 						)}

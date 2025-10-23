@@ -12,7 +12,7 @@ import {
 	IGetRequestUUIDHash,
 	IServerResponse,
 } from '@/types/generate.type'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Card, Input } from 'antd'
 import Cookies from 'js-cookie'
 import {
@@ -31,6 +31,7 @@ export function GenerateView() {
 	const dispatch = useAppDispatch()
 	const { min, max, count } = useAppSelector(state => state.interval)
 	const router = useRouter()
+	const queryClient = useQueryClient()
 	const [isGenerating, setIsGenerating] = useState(false)
 	const [rngData, setRngData] = useState<IServerResponse | null>(null)
 	const [analysisData, setAnalysisData] = useState<IAnalysisResponse | null>(
@@ -44,6 +45,7 @@ export function GenerateView() {
 	const { data, isLoading } = useQuery<{ data: IGetRequestUUIDHash }>({
 		queryKey: ['generate'],
 		queryFn: () => getEntropyHash(),
+		refetchOnWindowFocus: false,
 	})
 
 	useEffect(() => {
@@ -69,10 +71,15 @@ export function GenerateView() {
 		if (!data || !currentClientUUID) return
 		setIsGenerating(true)
 		try {
+			// Обновляем entropyHash перед генерацией
+			await queryClient.refetchQueries({ queryKey: ['generate'] })
+
 			// Используем существующий clientUUID для первой генерации, затем генерируем новый
 			const clientUUID = currentClientUUID
 			// Генерируем новый UUID для следующих генераций
 			const newClientUUID = uuidv4()
+			Cookies.set('oldClientUUID', clientUUID)
+			Cookies.set('oldEntropyHash', Cookies.get('entropyHash') || '')
 			setCurrentClientUUID(newClientUUID)
 
 			// Получаем encryptedEntropy из кук
@@ -242,6 +249,17 @@ export function GenerateView() {
 									</div>
 								)}
 							</Button>
+							<a
+								href='https://colab.research.google.com/drive/138t_s8CY4GnR_xRY1uM0f0qAc-tQPpQL'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='mt-6 flex items-center justify-center px-12 py-4 bg-gradient-to text-white rounded-xl font-bold text-lghover:shadow-2xl transition-all duration-300 border border-purple-400/30 flex items-center gap-3'
+							>
+								<div className='flex items-center gap-1.5'>
+									<ExternalLink className='w-6 h-6' />
+									<span>Проверка ГПЧ</span>
+								</div>
+							</a>
 						</div>
 
 						{/* Результат генерации */}
@@ -466,17 +484,18 @@ export function GenerateView() {
 							Выполните статистический анализ ваших собственных
 							последовательностей чисел
 						</p>
-						<button
-							onClick={() => router.push('/analyze')}
-							className='px-12 py-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-green-400/30 flex items-center gap-3 mx-auto'
-						>
-							<BarChart3 className='w-6 h-6' />
-							<span>Перейти к анализу</span>
-						</button>
+						<div className='flex gap-4 justify-center'>
+							<button
+								onClick={() => router.push('/analyze')}
+								className='px-12 py-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-green-400/30 flex items-center gap-3'
+							>
+								<BarChart3 className='w-6 h-6' />
+								<span>Перейти к анализу</span>
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	)
 }
-
