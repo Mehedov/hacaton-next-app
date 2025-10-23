@@ -241,7 +241,7 @@ function VisualizationContent() {
 											Entropy Data
 										</h5>
 										<p className='text-sm text-gray-300 font-mono break-all'>
-											{data.outputLayer.entropy.data.substring(0, 100)}...
+											{data.outputLayer.entropy.data}
 										</p>
 									</div>
 								</div>
