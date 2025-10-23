@@ -726,7 +726,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 								})
 							}, 100)
 						}}
-						className='px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl transform hover:scale-105'
+						className='w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl transform hover:scale-105'
 					>
 						<Info className='w-5 h-5' />
 						<span>Показать детальное объяснение</span>

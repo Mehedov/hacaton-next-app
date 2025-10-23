@@ -130,7 +130,7 @@ export function GenerateView() {
 			setIsLoadingBinaryUrl(true)
 			try {
 				const response = await generateRandomBinary()
-				setBinaryFileUrl(response.data.outpit.fileUrl)
+				setBinaryFileUrl(response.data.outputLayer.fileUrl)
 			} catch (error) {
 				console.error('Ошибка при получении ссылки на файл:', error)
 			} finally {

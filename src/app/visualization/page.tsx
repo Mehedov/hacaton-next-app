@@ -61,7 +61,7 @@ function VisualizationContent() {
 	return (
 		<div className='min-h-screen from-slate-50 to-blue-50'>
 			{/* Навигация */}
-			<div className='bg-white shadow-sm border-b'>
+			<div className='bg-white'>
 				<div className='max-w-7xl mx-auto px-6 py-4'>
 					<div className='flex items-center justify-between'>
 						<div>
