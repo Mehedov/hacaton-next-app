@@ -69,7 +69,7 @@ const getLogsForPhase = (
 	data: IServerResponse | null,
 	currentStepTitle?: string
 ): string[] => {
-	if (!data) return []
+	if (!data) return [`${new Date().toLocaleTimeString('ru-RU')} Ошибка: Нет данных`]
 
 	const timestamp = new Date().toLocaleTimeString('ru-RU')
 	const stepTitle = currentStepTitle || `Шаг ${step + 1}`
@@ -92,20 +92,20 @@ const getLogsForPhase = (
 					]
 				case 'output':
 					return [
-						`[${timestamp}] ${stepTitle}: Entropy Hash: ${data.outputLayer.entropy.entropyId.substring(0, 20)}...`,
-						`[${timestamp}] ${stepTitle}: Encrypted Entropy: ${data.inputLayer.encryptedEntropy.substring(0, 20)}...`,
-						`[${timestamp}] ${stepTitle}: Entropy URL: ${data.outputLayer.entropy.url}`,
+						`[${timestamp}] ${stepTitle}: Entropy Hash: ${data.outputLayer.entropy.entropyId ? data.outputLayer.entropy.entropyId.substring(0, 20) + '...' : 'N/A'}`,
+						`[${timestamp}] ${stepTitle}: Encrypted Entropy: ${data.inputLayer.encryptedEntropy ? data.inputLayer.encryptedEntropy.substring(0, 20) + '...' : 'N/A'}`,
+						`[${timestamp}] ${stepTitle}: Entropy URL: ${data.outputLayer.entropy.url || 'N/A'}`,
 					]
 				default:
-					return []
+					return [`[${timestamp}] ${stepTitle}: Обработка завершена`]
 			}
 		case 1: // Подготовка запроса
 			switch (phase) {
 				case 'input':
 					return [
 						`[${timestamp}] ${stepTitle}: Сбор параметров запроса`,
-						`[${timestamp}] ${stepTitle}: Client UUID: ${data.inputLayer.clientUUID.substring(0, 15)}...`,
-						`[${timestamp}] ${stepTitle}: Интервал: [${data.inputLayer.interval[0]}, ${data.inputLayer.interval[1]}]`,
+						`[${timestamp}] ${stepTitle}: Client UUID: ${data.inputLayer.clientUUID ? data.inputLayer.clientUUID.substring(0, 15) + '...' : 'N/A'}`,
+						`[${timestamp}] ${stepTitle}: Интервал: [${data.inputLayer.interval ? data.inputLayer.interval[0] : 'N/A'}, ${data.inputLayer.interval ? data.inputLayer.interval[1] : 'N/A'}]`,
 					]
 				case 'processing':
 					return [
@@ -116,11 +116,11 @@ const getLogsForPhase = (
 				case 'output':
 					return [
 						`[${timestamp}] ${stepTitle}: Количество: ${data.inputLayer.count}`,
-						`[${timestamp}] ${stepTitle}: Request UUID: ${data.outputLayer.requestUUID.substring(0, 15)}...`,
+						`[${timestamp}] ${stepTitle}: Request UUID: ${data.outputLayer.requestUUID ? data.outputLayer.requestUUID.substring(0, 15) + '...' : 'N/A'}`,
 						`[${timestamp}] ${stepTitle}: Запрос подготовлен`,
 					]
 				default:
-					return []
+					return [`[${timestamp}] ${stepTitle}: Обработка завершена`]
 			}
 		case 2: // Отправка запроса
 			switch (phase) {
@@ -143,15 +143,15 @@ const getLogsForPhase = (
 						`[${timestamp}] ${stepTitle}: Соединение установлено`,
 					]
 				default:
-					return []
+					return [`[${timestamp}] ${stepTitle}: Обработка завершена`]
 			}
 		case 3: // Обработка на сервере
 			switch (phase) {
 				case 'input':
 					return [
 						`[${timestamp}] ${stepTitle}: Получение данных для хэширования`,
-						`[${timestamp}] ${stepTitle}: Entropy Data: ${data.outputLayer.entropy.data.substring(0, 20)}...`,
-						`[${timestamp}] ${stepTitle}: Client UUID: ${data.inputLayer.clientUUID.substring(0, 15)}...`,
+						`[${timestamp}] ${stepTitle}: Entropy Data: ${data.outputLayer.entropy.data ? data.outputLayer.entropy.data.substring(0, 20) + '...' : 'N/A'}`,
+						`[${timestamp}] ${stepTitle}: Client UUID: ${data.inputLayer.clientUUID ? data.inputLayer.clientUUID.substring(0, 15) + '...' : 'N/A'}`,
 					]
 				case 'processing':
 					return [
@@ -161,12 +161,12 @@ const getLogsForPhase = (
 					]
 				case 'output':
 					return [
-						`[${timestamp}] ${stepTitle}: Genesis Hash: ${data.outputLayer.genesisHash.substring(0, 20)}...`,
-						`[${timestamp}] ${stepTitle}: Диапазон: [${data.inputLayer.interval[0]}, ${data.inputLayer.interval[1]}]`,
-						`[${timestamp}] ${stepTitle}: Количество: ${data.inputLayer.count}`,
+						`[${timestamp}] ${stepTitle}: Genesis Hash: ${data.outputLayer.genesisHash ? data.outputLayer.genesisHash.substring(0, 20) + '...' : 'N/A'}`,
+						`[${timestamp}] ${stepTitle}: Диапазон: [${data.inputLayer.interval ? data.inputLayer.interval[0] : 'N/A'}, ${data.inputLayer.interval ? data.inputLayer.interval[1] : 'N/A'}]`,
+						`[${timestamp}] ${stepTitle}: Количество: ${data.inputLayer.count || 'N/A'}`,
 					]
 				default:
-					return []
+					return [`[${timestamp}] ${stepTitle}: Обработка завершена`]
 			}
 		case 4: // Получение результатов
 			switch (phase) {
@@ -183,21 +183,21 @@ const getLogsForPhase = (
 						`[${timestamp}] ${stepTitle}: Верификация результатов`,
 					]
 				case 'output':
-					const outputValues = data.outputLayer.outputValues
+					const outputValues = data.outputLayer.outputValues || []
 					const displayValues = outputValues.length > 10
 						? outputValues.slice(0, 5).join(', ') + `... (+${outputValues.length - 5} еще)`
-						: outputValues.join(', ')
+						: outputValues.join(', ') || 'N/A'
 
 					return [
 						`[${timestamp}] ${stepTitle}: Финальные случайные числа: ${displayValues}`,
-						`[${timestamp}] ${stepTitle}: Entropy URL: ${data.outputLayer.entropy.url}`,
+						`[${timestamp}] ${stepTitle}: Entropy URL: ${data.outputLayer.entropy.url || 'N/A'}`,
 						`[${timestamp}] ${stepTitle}: Процесс генерации завершен`,
 					]
 				default:
-					return []
+					return [`[${timestamp}] ${stepTitle}: Обработка завершена`]
 			}
 		default:
-			return []
+			return [`[${timestamp}] ${stepTitle}: Неизвестный этап`]
 	}
 }
 
@@ -219,7 +219,7 @@ const DataTransformationAnimation: React.FC<
 
 	// Создание блоков данных на основе текущего этапа
 	useEffect(() => {
-		if (!data || !isAnimating) return
+		if (!data) return
 
 		const steps = [
 			{
@@ -238,7 +238,7 @@ const DataTransformationAnimation: React.FC<
 
 		// Создаем блоки данных для текущего этапа
 		const blocks: DataBlock[] = []
-		const dataLength = String(currentStepData.data).length
+		const dataLength = String(currentStepData.data || 'default').length
 		const blockCount = Math.max(1, Math.min(dataLength, 8)) // Минимум 1 блок
 
 		for (let i = 0; i < blockCount; i++) {
@@ -257,11 +257,11 @@ const DataTransformationAnimation: React.FC<
 		setDataBlocks(blocks)
 		setAnimationPhase('input')
 		// Не очищать логи, чтобы сохранить все этапы
-	}, [data, currentStep, isAnimating])
+	}, [data, currentStep])
 
 	// Анимация трансформации
 	useEffect(() => {
-		if (dataBlocks.length === 0 || !isAnimating) return
+		if (!isAnimating) return
 
 		const phases: ('input' | 'processing' | 'output')[] = [
 			'input',
@@ -269,7 +269,6 @@ const DataTransformationAnimation: React.FC<
 			'output',
 		]
 		let currentPhaseIndex = 0
-		let cycleCount = 0
 
 		// Не очищать логи, чтобы сохранить все этапы
 
@@ -288,33 +287,27 @@ const DataTransformationAnimation: React.FC<
 			logsForPhase.forEach((log, index) => {
 				setTimeout(() => {
 					setLogs(prev => [...prev, log])
-				}, index * 300) // 0.3 секунды между логами
+				}, index * 200) // 0.2 секунды между логами
 			})
 
 			// После всех логов, перейти к следующей фазе
+			const timeoutDuration = Math.max(500, logsForPhase.length * 200 + 300)
 			setTimeout(() => {
 				currentPhaseIndex++
 				if (currentPhaseIndex < phases.length) {
 					runPhase(phases[currentPhaseIndex])
 				} else {
-					// Проверить, нужно ли повторить цикл
-					cycleCount++
-					if (cycleCount < 1) {
-						currentPhaseIndex = 0
-						setTimeout(() => runPhase(phases[0]), 500) // Задержка перед повтором
-					} else {
-						// Остановить после 2 циклов
-						setAnimationPhase('output')
-						// Сигнализировать о завершении
-						onAnimationComplete?.()
-					}
+					// Остановить после 1 цикла
+					setAnimationPhase('output')
+					// Сигнализировать о завершении
+					onAnimationComplete?.()
 				}
-			}, logsForPhase.length * 300 + 500) // Дополнительная задержка после логов
+			}, timeoutDuration) // Дополнительная задержка после логов
 		}
 
 		// Начать с первой фазы
 		runPhase(phases[0])
-	}, [dataBlocks.length, isAnimating, currentStep, data])
+	}, [isAnimating, currentStep, data])
 
 	// Автоматический скролл к низу при добавлении логов
 	useEffect(() => {
@@ -325,7 +318,6 @@ const DataTransformationAnimation: React.FC<
 
 	// Анимация блоков данных
 	useEffect(() => {
-		if (dataBlocks.length === 0) return
 
 		const animate = () => {
 			setDataBlocks(prevBlocks =>
@@ -359,9 +351,9 @@ const DataTransformationAnimation: React.FC<
 
 		const animationFrame = requestAnimationFrame(animate)
 		return () => cancelAnimationFrame(animationFrame)
-	}, [animationPhase, dataBlocks.length])
+	}, [animationPhase])
 
-	if (!data || dataBlocks.length === 0) {
+	if (!data) {
 		return null
 	}
 

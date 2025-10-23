@@ -69,7 +69,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				description: 'GET запрос для получения entropyHash и encryptedEntropy',
 				icon: <Link className='w-6 h-6 text-white' />,
 				color: '#ef4444',
-				duration: 2000,
+				duration: 1000,
 				data: {
 					entropyHash: data.outputLayer.entropy.entropyId,
 					cryptedEntropy: data.inputLayer.encryptedEntropy,
@@ -82,7 +82,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				description: 'Ввод clientUUID, interval, count и encryptedEntropy',
 				icon: <Dices className='w-6 h-6 text-white' />,
 				color: '#22c55e',
-				duration: 1800,
+				duration: 900,
 				data: {
 					clientUUID: data.inputLayer.clientUUID,
 					interval: data.inputLayer.interval,
@@ -96,7 +96,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				description: 'POST запрос на генерацию случайных чисел',
 				icon: <ArrowRightLeft className='w-6 h-6 text-white' />,
 				color: '#06b6d4',
-				duration: 1500,
+				duration: 750,
 			},
 			{
 				id: 'server-processing',
@@ -104,7 +104,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				description: 'Генерация genesisHash (SHA-512) и outputValues',
 				icon: <Zap className='w-6 h-6 text-white' />,
 				color: '#8b5cf6',
-				duration: 2500,
+				duration: 1250,
 				data: {
 					genesisHash: data.outputLayer.genesisHash,
 					data: data.outputLayer.entropy.data,
@@ -117,7 +117,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 				description: 'Финальные случайные числа и entropyURL',
 				icon: <Target className='w-6 h-6 text-white' />,
 				color: '#10b981',
-				duration: 2000,
+				duration: 1000,
 				data: {
 					outputValues: data.outputLayer.outputValues,
 					entropyURL: data.outputLayer.entropy.url,
@@ -128,9 +128,8 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 	}, [data])
 
 	useEffect(() => {
-		// Запускаем анимацию только если isPlaying === true
-		// Это гарантирует, что анимация не запустится при клике на этапы
-		if (!isPlaying || steps.length === 0) return
+		// Запускаем анимацию при смене currentStep
+		if (steps.length === 0) return
 
 		const step = steps[currentStep]
 		if (!step) return
@@ -139,7 +138,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 
 		// Анимация завершится через onAnimationComplete в DataTransformationAnimation
 
-	}, [currentStep, isPlaying, steps])
+	}, [currentStep, steps])
 
 	// Эффект для автопрокрутки к блоку подсказок (убран автоматический скролл при загрузке)
 
@@ -646,7 +645,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 								}
 								return nextStep
 							})
-						}, 50)
+						}, 25)
 					}}
 					currentStepTitle={steps[currentStep]?.title}
 				/>
