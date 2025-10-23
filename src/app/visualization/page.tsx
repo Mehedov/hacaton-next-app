@@ -96,7 +96,7 @@ function VisualizationContent() {
 			{/* Основное содержимое */}
 			<div className='w-full max-w-none mx-auto px-8 py-8 space-y-8'>
 				{/* Информация о генерации вверху */}
-				<div className='bg-gradient-to-br mt-16 rounded-xl p-8'>
+				<div className='bg-gradient-to-br rounded-xl p-8'>
 					<div className='max-w-none mx-auto'>
 						{/* Заголовок блока */}
 						<div className='text-center mb-8'>
@@ -223,7 +223,25 @@ function VisualizationContent() {
 											Entropy Hash
 										</h5>
 										<p className='text-sm text-gray-300 font-mono break-all'>
-											{Cookies.get('oldEntropyHash')}
+											{data.outputLayer.entropy.entropyId}
+										</p>
+									</div>
+									<div className='bg-gradient-to-r from-gray-800 to-gray-700 border border-cyan-400/20 rounded-lg p-4 hover:border-cyan-400/40 transition-colors duration-300'>
+										<h5 className='font-semibold text-cyan-400 mb-2 flex items-center gap-2'>
+											<div className='w-2 h-2 bg-cyan-400 rounded-full'></div>
+											Genesis Hash
+										</h5>
+										<p className='text-sm text-gray-300 font-mono break-all'>
+											{data.outputLayer.genesisHash}
+										</p>
+									</div>
+									<div className='bg-gradient-to-r from-gray-800 to-gray-700 border border-indigo-400/20 rounded-lg p-4 hover:border-indigo-400/40 transition-colors duration-300'>
+										<h5 className='font-semibold text-indigo-400 mb-2 flex items-center gap-2'>
+											<div className='w-2 h-2 bg-indigo-400 rounded-full'></div>
+											Entropy Data
+										</h5>
+										<p className='text-sm text-gray-300 font-mono break-all'>
+											{data.outputLayer.entropy.data.substring(0, 100)}...
 										</p>
 									</div>
 								</div>
