@@ -466,7 +466,7 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 														</div>
 														<div className='flex flex-wrap gap-1 mt-2'>
 															{resultsData.outputValues
-																.slice(0, 8)
+																.slice(0, 5)
 																.map((val, idx) => (
 																	<span
 																		key={idx}
@@ -475,10 +475,9 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 																		{val}
 																	</span>
 																))}
-															{resultsData.outputValues.length > 8 && (
+															{resultsData.outputValues.length > 5 && (
 																<span className='text-gray-400 text-xs'>
-																	... +{resultsData.outputValues.length - 8}{' '}
-																	more
+																	... и {resultsData.outputValues.length - 5} скрыто
 																</span>
 															)}
 														</div>

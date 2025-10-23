@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
+import Cookies from 'js-cookie'
 
 function VisualizationContent() {
 	const [data, setData] = useState<IServerResponse | null>(null)
@@ -216,7 +217,7 @@ function VisualizationContent() {
 											Entropy Hash
 										</h5>
 										<p className='text-sm text-gray-300 font-mono break-all'>
-											{data.outputLayer.entropy.entropyId}
+											{Cookies.get('entropyHash')}
 										</p>
 									</div>
 								</div>

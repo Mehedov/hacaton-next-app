@@ -195,7 +195,7 @@ const ServerAlgorithmVisualization: React.FC<
 										Вход: data + UUID
 									</div>
 									<div className='text-xs text-yellow-700'>
-										Выход: {data.outputLayer.genesisHash.substring(0, 8)}...
+										Выход: {data.outputLayer.genesisHash}
 									</div>
 								</div>
 							</div>

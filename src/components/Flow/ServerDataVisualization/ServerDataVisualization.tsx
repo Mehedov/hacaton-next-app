@@ -164,7 +164,7 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 								title={String(node.value)}
 							>
 								{String(node.value).length > 50
-									? `${String(node.value).substring(0, 50)}...`
+									? `${node.value}`
 									: String(node.value)}
 							</span>
 						)}
@@ -184,10 +184,11 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 				)
 			case 'array':
 				const values = node.value as number[]
+				const displayedArrayValues = values.length > 100 ? values.slice(0, 5) : values
 				return (
 					<div className='flex flex-col gap-3'>
 						<div className='flex flex-wrap gap-2'>
-							{values.map((val, index) => (
+							{displayedArrayValues.map((val, index) => (
 								<span
 									key={index}
 									className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center min-w-[35px]'
@@ -195,6 +196,11 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 									{val}
 								</span>
 							))}
+							{values.length > 100 && (
+								<span className='text-gray-400 text-xs mt-1'>
+									... и {values.length - 5} скрыто
+								</span>
+							)}
 						</div>
 						<div className='text-gray-600 text-sm text-center pt-2 border-t border-gray-200'>
 							Всего: {values.length} значений
@@ -400,14 +406,28 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 									</div>
 									<div className='text-blue-300 mt-1'>Result:</div>
 									<div className='flex flex-wrap gap-1 mt-2'>
-										{data.outputLayer.outputValues.map((val, idx) => (
-											<span
-												key={idx}
-												className='bg-orange-600 text-white px-2 py-1 rounded text-xs'
-											>
-												{val}
+										{data.outputLayer.outputValues.length > 100
+											? data.outputLayer.outputValues.slice(0, 5).map((val, idx) => (
+													<span
+														key={idx}
+														className='bg-orange-600 text-white px-2 py-1 rounded text-xs'
+													>
+														{val}
+													</span>
+												))
+											: data.outputLayer.outputValues.map((val, idx) => (
+													<span
+														key={idx}
+														className='bg-orange-600 text-white px-2 py-1 rounded text-xs'
+													>
+														{val}
+													</span>
+												))}
+										{data.outputLayer.outputValues.length > 100 && (
+											<span className='text-gray-400 text-xs mt-1'>
+												... и {data.outputLayer.outputValues.length - 5} скрыто
 											</span>
-										))}
+										)}
 									</div>
 								</div>
 							</div>

@@ -12,7 +12,7 @@ import {
 	IGetRequestUUIDHash,
 	IServerResponse,
 } from '@/types/generate.type'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Card, Input } from 'antd'
 import Cookies from 'js-cookie'
 import {
@@ -31,6 +31,7 @@ export function GenerateView() {
 	const dispatch = useAppDispatch()
 	const { min, max, count } = useAppSelector(state => state.interval)
 	const router = useRouter()
+	const queryClient = useQueryClient()
 	const [isGenerating, setIsGenerating] = useState(false)
 	const [rngData, setRngData] = useState<IServerResponse | null>(null)
 	const [analysisData, setAnalysisData] = useState<IAnalysisResponse | null>(
@@ -44,6 +45,8 @@ export function GenerateView() {
 	const { data, isLoading } = useQuery<{ data: IGetRequestUUIDHash }>({
 		queryKey: ['generate'],
 		queryFn: () => getEntropyHash(),
+		refetchOnWindowFocus: false,
+		staleTime: Infinity,
 	})
 
 	useEffect(() => {
@@ -82,14 +85,16 @@ export function GenerateView() {
 				return
 			}
 
-			const clampedCount = Math.min(Math.max(count, 1), 100)
 			const response = await generateRandomNumbers({
 				clientUUID: clientUUID,
 				interval: [min, max],
-				count: clampedCount,
+				count: count,
 				encryptedEntropy: encryptedEntropy,
 			})
 			setRngData(response.data)
+
+			// Обновляем entropyHash после генерации
+			queryClient.refetchQueries({ queryKey: ['generate'] })
 
 			// Автоматический запуск анализа сгенерированных чисел
 			if (response.data.outputLayer.outputValues.length >= 50) {
@@ -208,12 +213,12 @@ export function GenerateView() {
 										value={countInput}
 										onChange={e => {
 											const value = Number(e.target.value)
-											const clampedValue = Math.min(Math.max(value, 1), 100)
+											const clampedValue = Math.min(Math.max(value, 1), 1000)
 											setCountInput(clampedValue)
 											dispatch(setCount(clampedValue))
 										}}
 										min={1}
-										max={100}
+										max={1000}
 										className='text-center text-lg h-12'
 									/>
 								</div>
@@ -295,15 +300,55 @@ export function GenerateView() {
 										</span>
 									</h4>
 									<div className='flex flex-wrap justify-center gap-2 mb-6'>
-										{rngData.outputLayer.outputValues.map((value, index) => (
-											<span
-												key={index}
-												className='bg-transparent text-gray-500 px-3 py-2 rounded-lg text-lg font-mono border border-gray-500  transition-colors duration-200'
-											>
-												{value}
+										{rngData.outputLayer.outputValues.length > 100
+											? rngData.outputLayer.outputValues
+													.slice(0, 5)
+													.map((value, index) => (
+														<span
+															key={index}
+															className='bg-transparent text-gray-500 px-3 py-2 rounded-lg text-lg font-mono border border-gray-500  transition-colors duration-200'
+														>
+															{value}
+														</span>
+													))
+											: rngData.outputLayer.outputValues.map((value, index) => (
+													<span
+														key={index}
+														className='bg-transparent text-gray-500 px-3 py-2 rounded-lg text-lg font-mono border border-gray-500  transition-colors duration-200'
+													>
+														{value}
+													</span>
+											  ))}
+										{rngData.outputLayer.outputValues.length > 100 && (
+											<span className='text-gray-400 text-lg mt-2'>
+												{rngData.outputLayer.outputValues.length - 5} скрыто
 											</span>
-										))}
+										)}
 									</div>
+									{rngData.outputLayer.outputValues.length > 100 && (
+										<div className='flex justify-center mb-6'>
+											<button
+												onClick={() => {
+													const numbers =
+														rngData.outputLayer.outputValues.join('\n')
+													const blob = new Blob([numbers], {
+														type: 'text/plain',
+													})
+													const url = URL.createObjectURL(blob)
+													const a = document.createElement('a')
+													a.href = url
+													a.download = 'generated_numbers.txt'
+													document.body.appendChild(a)
+													a.click()
+													document.body.removeChild(a)
+													URL.revokeObjectURL(url)
+												}}
+												className='px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors duration-200'
+											>
+												📥 Скачать все числа (TXT)
+											</button>
+										</div>
+									)}
 									<div className='text-gray-400 text-sm'>
 										Всего сгенерировано:{' '}
 										<span className='text-green-400 font-semibold'>
@@ -479,4 +524,3 @@ export function GenerateView() {
 		</div>
 	)
 }
-
