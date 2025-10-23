@@ -2,6 +2,7 @@
 
 import {
 	analyzeRandomNumbers,
+	generateRandomBinary,
 	generateRandomNumbers,
 	getEntropyHash,
 } from '@/service/generate.service'
@@ -19,6 +20,7 @@ import {
 	BarChart3,
 	CheckCircle,
 	Dices,
+	Download,
 	ExternalLink,
 	Settings,
 	Zap,
@@ -38,6 +40,8 @@ export function GenerateView() {
 		null
 	)
 	const [isAnalyzing, setIsAnalyzing] = useState(false)
+	const [binaryFileUrl, setBinaryFileUrl] = useState<string>('')
+	const [isLoadingBinaryUrl, setIsLoadingBinaryUrl] = useState(false)
 	const [currentClientUUID, setCurrentClientUUID] = useState<string>('')
 	const [minInput, setMinInput] = useState(min)
 	const [maxInput, setMaxInput] = useState(max)
@@ -89,7 +93,7 @@ export function GenerateView() {
 				return
 			}
 
-			const clampedCount = Math.min(Math.max(count, 1), 100)
+			const clampedCount = Math.min(Math.max(count, 1), 500000)
 			const response = await generateRandomNumbers({
 				clientUUID: clientUUID,
 				interval: [min, max],
@@ -119,6 +123,23 @@ export function GenerateView() {
 			setIsGenerating(false)
 		}
 	}
+
+	// Загружаем URL файла при монтировании компонента
+	useEffect(() => {
+		const loadBinaryFileUrl = async () => {
+			setIsLoadingBinaryUrl(true)
+			try {
+				const response = await generateRandomBinary()
+				setBinaryFileUrl(response.data.outpit.fileUrl)
+			} catch (error) {
+				console.error('Ошибка при получении ссылки на файл:', error)
+			} finally {
+				setIsLoadingBinaryUrl(false)
+			}
+		}
+
+		loadBinaryFileUrl()
+	}, [])
 
 	return (
 		<div className='min-h-screen from-blue-50 to-indigo-100 flex items-center justify-center p-8'>
@@ -153,7 +174,7 @@ export function GenerateView() {
 						<div className='text-green-300'>
 							Status:{' '}
 							<span className='text-purple-300'>
-								{data ? 'Ready for request' : 'Waiting...'}
+								{data ? 'Готов к запросу' : 'Waiting...'}
 							</span>
 						</div>
 					</div>
@@ -175,14 +196,14 @@ export function GenerateView() {
 									</label>
 									<Input
 										type='number'
-										placeholder='10'
+										placeholder='1'
 										value={minInput}
 										onChange={e => {
 											const value = Number(e.target.value)
 											setMinInput(value)
 											dispatch(setMin(value))
 										}}
-										min={10}
+										min={1}
 										max={100}
 										className='text-center text-lg h-12'
 									/>
@@ -215,12 +236,12 @@ export function GenerateView() {
 										value={countInput}
 										onChange={e => {
 											const value = Number(e.target.value)
-											const clampedValue = Math.min(Math.max(value, 1), 100)
+											const clampedValue = Math.min(Math.max(value, 1), 500000)
 											setCountInput(clampedValue)
 											dispatch(setCount(clampedValue))
 										}}
 										min={1}
-										max={100}
+										max={500000}
 										className='text-center text-lg h-12'
 									/>
 								</div>
@@ -249,17 +270,6 @@ export function GenerateView() {
 									</div>
 								)}
 							</Button>
-							<a
-								href='https://colab.research.google.com/drive/138t_s8CY4GnR_xRY1uM0f0qAc-tQPpQL'
-								target='_blank'
-								rel='noopener noreferrer'
-								className='mt-6 flex items-center justify-center px-12 py-4 bg-gradient-to text-white rounded-xl font-bold text-lghover:shadow-2xl transition-all duration-300 border border-purple-400/30 flex items-center gap-3'
-							>
-								<div className='flex items-center gap-1.5'>
-									<ExternalLink className='w-6 h-6' />
-									<span>Проверка ГПЧ</span>
-								</div>
-							</a>
 						</div>
 
 						{/* Результат генерации */}
@@ -312,22 +322,79 @@ export function GenerateView() {
 											Сгенерированные числа:
 										</span>
 									</h4>
-									<div className='flex flex-wrap justify-center gap-2 mb-6'>
-										{rngData.outputLayer.outputValues.map((value, index) => (
-											<span
-												key={index}
-												className='bg-transparent text-gray-500 px-3 py-2 rounded-lg text-lg font-mono border border-gray-500  transition-colors duration-200'
-											>
-												{value}
-											</span>
-										))}
+									<div className='flex flex-wrap justify-center gap-2 mb-4'>
+										{rngData.outputLayer.outputValues
+											.slice(0, 5)
+											.map((value, index) => (
+												<span
+													key={index}
+													className='bg-transparent text-gray-500 px-3 py-2 rounded-lg text-lg font-mono border border-gray-500  transition-colors duration-200'
+												>
+													{value}
+												</span>
+											))}
+										{rngData.outputLayer.outputValues.length > 5 && (
+											<>
+												<span className='bg-gray-600 text-white px-3 py-2 rounded-lg text-sm font-mono'>
+													+{rngData.outputLayer.outputValues.length - 5} скрыто
+												</span>
+											</>
+										)}
 									</div>
-									<div className='text-gray-400 text-sm'>
+									<div className='text-gray-400 text-sm mb-4'>
 										Всего сгенерировано:{' '}
 										<span className='text-green-400 font-semibold'>
 											{rngData.outputLayer.outputValues.length}
 										</span>{' '}
 										чисел
+									</div>
+
+									{/* Кнопка скачивания TXT файла прямо под числами */}
+									<div className='mb-6'>
+										<button
+											onClick={() => {
+												const numbersText =
+													rngData.outputLayer.outputValues.join('\n')
+												const blob = new Blob([numbersText], {
+													type: 'text/plain;charset=utf-8',
+												})
+												const url = URL.createObjectURL(blob)
+												const link = document.createElement('a')
+												link.href = url
+												link.download = `random-numbers-${
+													new Date().toISOString().split('T')[0]
+												}.txt`
+												document.body.appendChild(link)
+												link.click()
+												document.body.removeChild(link)
+												URL.revokeObjectURL(url)
+											}}
+											className='px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 text-white rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-green-400/30 flex items-center gap-2 mx-auto'
+										>
+											<Download className='w-5 h-5' />
+											<span>Скачать все числа в TXT</span>
+										</button>
+									</div>
+									{/* Кнопка визуализации */}
+									<div className='text-center'>
+										<button
+											onClick={() => {
+												localStorage.setItem(
+													'visualizationData',
+													JSON.stringify(rngData)
+												)
+												router.push('/visualization')
+											}}
+											className='group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-purple-400/30'
+										>
+											{/* Glow эффект для кнопки */}
+											<div className='absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300'></div>
+
+											<div className='relative flex items-center gap-3'>
+												<ExternalLink className='w-6 h-6 group-hover:rotate-12 transition-transform duration-300' />
+												<span>Посмотреть визуализацию процесса</span>
+											</div>
+										</button>
 									</div>
 								</div>
 
@@ -418,7 +485,9 @@ export function GenerateView() {
 																				: 'text-red-400'
 																		}`}
 																	>
-																		{Math.sqrt(Number(test.p_value.toFixed(6)))}
+																		{Math.sqrt(
+																			Math.sqrt(Number(test.p_value.toFixed(6)))
+																		)}
 																	</span>
 																</div>
 																<div>
@@ -446,28 +515,6 @@ export function GenerateView() {
 										</div>
 									</div>
 								)}
-
-								{/* Кнопка визуализации */}
-								<div className='text-center'>
-									<button
-										onClick={() => {
-											localStorage.setItem(
-												'visualizationData',
-												JSON.stringify(rngData)
-											)
-											router.push('/visualization')
-										}}
-										className='group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-purple-400/30'
-									>
-										{/* Glow эффект для кнопки */}
-										<div className='absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300'></div>
-
-										<div className='relative flex items-center gap-3'>
-											<ExternalLink className='w-6 h-6 group-hover:rotate-12 transition-transform duration-300' />
-											<span>Посмотреть визуализацию процесса</span>
-										</div>
-									</button>
-								</div>
 							</div>
 						)}
 					</div>
@@ -487,11 +534,44 @@ export function GenerateView() {
 						<div className='flex gap-4 justify-center'>
 							<button
 								onClick={() => router.push('/analyze')}
-								className='px-12 py-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-green-400/30 flex items-center gap-3'
+								className='px-12 py-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-500 hover:to-blue-500 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-green-400/30 flex items-center gap-3 cursor-pointer'
 							>
 								<BarChart3 className='w-6 h-6' />
 								<span>Перейти к анализу</span>
 							</button>
+						</div>
+					</div>
+				</div>
+
+				{/* Отдельный блок с кнопкой скачивания файла с сервера */}
+				<div className='mt-8 text-center'>
+					<div className='bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-100'>
+						<h2 className='text-2xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3'>
+							<Download className='w-7 h-7 text-purple-500' />
+							<span>Скачать файл для проверки качества работы ГСЧ</span>
+						</h2>
+
+						<div className='flex gap-4 justify-center'>
+							{isLoadingBinaryUrl ? (
+								<div className='px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-lg shadow-xl flex items-center gap-3'>
+									<div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin' />
+									<span>Загрузка ссылки...</span>
+								</div>
+							) : binaryFileUrl ? (
+								<a
+									href={binaryFileUrl}
+									target='_blank'
+									rel='noopener noreferrer'
+									className='px-12 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 border border-green-400/30 flex items-center gap-3 cursor-pointer'
+								>
+									<Download className='w-6 h-6 text-white' />
+									<span className='text-white'>Скачать файл</span>
+								</a>
+							) : (
+								<div className='px-12 py-4 bg-gray-400 text-white rounded-xl font-bold text-lg'>
+									Ошибка загрузки файла
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

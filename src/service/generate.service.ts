@@ -43,3 +43,14 @@ export const analyzeRandomNumbers = (data: {
 		}
 	)
 }
+
+export const generateRandomBinary = () => {
+	return axios.get(
+		'https://back.bgitu-compass.ru/generateRandomBinary',
+		{
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+	)
+}

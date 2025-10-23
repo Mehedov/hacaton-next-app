@@ -1,10 +1,10 @@
 'use client'
 
 import ServerAlgorithmVisualization from '@/components/Flow/ServerAlgorithmVisualization/ServerAlgorithmVisualization'
-import ServerDataVisualization from '@/components/Flow/ServerDataVisualization/ServerDataVisualization'
 import SoundEffects from '@/components/Flow/SoundEffects/SoundEffects'
 import StepByStepVisualization from '@/components/Flow/StepByStepVisualization/StepByStepVisualization'
 import { IServerResponse } from '@/types/generate.type'
+import Cookies from 'js-cookie'
 import {
 	CheckCircle,
 	Database,
@@ -14,7 +14,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
 
 function VisualizationContent() {
 	const [data, setData] = useState<IServerResponse | null>(null)
@@ -81,6 +80,13 @@ function VisualizationContent() {
 							>
 								<Home className='w-5 h-5' />
 								<span>На главную</span>
+							</Link>
+							<Link
+							target='_blank'
+								href='https://colab.research.google.com/drive/138t_s8CY4GnR_xRY1uM0f0qAc-tQPpQL'
+								className='px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors duration-200 flex items-center gap-2'
+							>
+								<span>Проверка ГСЧ</span>
 							</Link>
 						</div>
 					</div>
@@ -229,21 +235,9 @@ function VisualizationContent() {
 				{/* Две колонки для дополнительных визуализаций (сверху) */}
 				{/* Поток энтропии */}
 
-				{/* Server Data Visualization - Подробная схема алгоритма сервера */}
-				<div className='bg-white rounded-2xl p-8'>
-					<ServerDataVisualization
-						data={data}
-						isLoading={false}
-						error={null}
-					/>
-				</div>
-
 				{/* Server Algorithm Visualization - Графическая схема алгоритма */}
 				<div className='bg-white rounded-2xl p-8'>
-					<ServerAlgorithmVisualization
-						data={data}
-						isVisible={true}
-					/>
+					<ServerAlgorithmVisualization data={data} isVisible={true} />
 				</div>
 
 				{/* Пошаговая визуализация (снизу) */}
@@ -261,17 +255,6 @@ function VisualizationContent() {
 					currentStep={currentStep}
 					eventType={isAnimationPlaying ? 'step_change' : 'completion'}
 				/>
-
-				{/* Кнопка вернуться на главную */}
-				<div className='mt-8 text-center'>
-					<Link
-						href='/'
-						className='px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-blue-400/30 flex items-center gap-3 mx-auto'
-					>
-						<Home className='w-6 h-6' />
-						<span>Вернуться на главную</span>
-					</Link>
-				</div>
 			</div>
 		</div>
 	)

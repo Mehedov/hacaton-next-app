@@ -187,17 +187,31 @@ const ServerDataVisualization: React.FC<ServerDataVisualizationProps> = ({
 				return (
 					<div className='flex flex-col gap-3'>
 						<div className='flex flex-wrap gap-2'>
-							{values.map((val, index) => (
-								<span
-									key={index}
-									className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center min-w-[35px]'
-								>
-									{val}
-								</span>
-							))}
+							{values.length > 50
+								? values.slice(0, 5).map((val, index) => (
+										<span
+											key={index}
+											className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center min-w-[35px]'
+										>
+											{val}
+										</span>
+								  ))
+								: values.map((val, index) => (
+										<span
+											key={index}
+											className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center min-w-[35px]'
+										>
+											{val}
+										</span>
+								  ))}
 						</div>
 						<div className='text-gray-600 text-sm text-center pt-2 border-t border-gray-200'>
 							Всего: {values.length} значений
+							{values.length > 50 && (
+								<span className='text-yellow-600 ml-1'>
+									(отображаются первые 5 из {values.length})
+								</span>
+							)}
 						</div>
 					</div>
 				)

@@ -1,15 +1,7 @@
 'use client'
 
 import { IServerResponse } from '@/types/generate.type'
-import {
-	ArrowRight,
-	Database,
-	Hash,
-	Key,
-	Server,
-	Shield,
-	Zap,
-} from 'lucide-react'
+import { ArrowRight, Database, Hash, Server, Shield, Zap } from 'lucide-react'
 import React from 'react'
 
 interface ServerAlgorithmVisualizationProps {
@@ -88,7 +80,7 @@ const ServerAlgorithmVisualization: React.FC<
 					</div>
 
 					{/* Блоки этапов */}
-					<div className='relative z-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-7 gap-6'>
+					<div className='relative z-10 flex justify-between items-center'>
 						{/* Клиент */}
 						<div className='flex flex-col items-center'>
 							<div className='w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white mb-3 shadow-lg'>
@@ -133,7 +125,7 @@ const ServerAlgorithmVisualization: React.FC<
 						</div>
 
 						{/* Декодирование энтропии */}
-						<div className='flex flex-col items-center'>
+						{/* <div className='flex flex-col items-center'>
 							<div className='w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white mb-3 shadow-lg'>
 								<Key className='w-8 h-8' />
 							</div>
@@ -153,7 +145,7 @@ const ServerAlgorithmVisualization: React.FC<
 									<div className='text-xs text-purple-700'>→ entropyId </div>
 								</div>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Получение данных энтропии */}
 						<div className='flex flex-col items-center'>
@@ -192,7 +184,7 @@ const ServerAlgorithmVisualization: React.FC<
 										Алгоритм: SHA-512
 									</div>
 									<div className='text-xs text-yellow-700'>
-										Вход: data + UUID
+										Вход: entropy + UUID
 									</div>
 									<div className='text-xs text-yellow-700'>
 										Выход: {data.outputLayer.genesisHash.substring(0, 8)}...
@@ -234,36 +226,16 @@ const ServerAlgorithmVisualization: React.FC<
 								<h4 className='font-semibold text-red-800 text-sm mb-1'>
 									Ответ клиенту
 								</h4>
-								<p className='text-xs text-red-600 mb-2'>Формирование ответа</p>
+								<p className='text-xs text-red-600 mb-2'>
+									Раскрытие данных для верификации
+								</p>
 								<div className='space-y-1'>
-									<div className='text-xs text-red-700'>outputValues</div>
+									<div className='text-xs text-red-700'>случайные числа</div>
+									<div className='text-xs text-red-700'>decoded entropy</div>
 									<div className='text-xs text-red-700'>entropyURL</div>
 									<div className='text-xs text-red-700'>genesisHash</div>
-									<div className='text-xs text-red-700'>Верификация</div>
 								</div>
 							</div>
-						</div>
-					</div>
-				</div>
-
-				{/* Легенда */}
-				<div className='mt-8 p-4 bg-gray-50 rounded-lg flex justify-center'>
-					<div className='grid grid-cols-2 md:grid-cols-4 gap-70 text-sm'>
-						<div className='flex items-center gap-2'>
-							<div className='w-4 h-4 bg-green-500 rounded-full'></div>
-							<span>Клиент</span>
-						</div>
-						<div className='flex items-center gap-2'>
-							<div className='w-4 h-4 bg-cyan-500 rounded-full'></div>
-							<span>Сервер</span>
-						</div>
-						<div className='flex items-center gap-2'>
-							<div className='w-4 h-4 bg-purple-500 rounded-full'></div>
-							<span>Процесс</span>
-						</div>
-						<div className='flex items-center gap-2'>
-							<div className='w-4 h-4 bg-gray-400 rounded-full animate-pulse'></div>
-							<span>Данные</span>
 						</div>
 					</div>
 				</div>

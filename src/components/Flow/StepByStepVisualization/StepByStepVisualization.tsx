@@ -465,22 +465,38 @@ const StepByStepVisualization: React.FC<StepByStepVisualizationProps> = ({
 															</span>
 														</div>
 														<div className='flex flex-wrap gap-1 mt-2'>
-															{resultsData.outputValues
-																.slice(0, 8)
-																.map((val, idx) => (
-																	<span
-																		key={idx}
-																		className='bg-green-600 text-white px-2 py-1 rounded text-xs animate-pulse'
-																	>
-																		{val}
-																	</span>
-																))}
-															{resultsData.outputValues.length > 8 && (
-																<span className='text-gray-400 text-xs'>
-																	... +{resultsData.outputValues.length - 8}{' '}
-																	more
+															{resultsData.outputValues.length > 50
+																? resultsData.outputValues
+																		.slice(0, 5)
+																		.map((val, idx) => (
+																			<span
+																				key={idx}
+																				className='bg-green-600 text-white px-2 py-1 rounded text-xs animate-pulse'
+																			>
+																				{val}
+																			</span>
+																		))
+																: resultsData.outputValues
+																		.slice(0, 8)
+																		.map((val, idx) => (
+																			<span
+																				key={idx}
+																				className='bg-green-600 text-white px-2 py-1 rounded text-xs animate-pulse'
+																			>
+																				{val}
+																			</span>
+																		))}
+															{resultsData.outputValues.length > 50 && (
+																<span className='text-yellow-400 text-xs'>
+																	+{resultsData.outputValues.length - 5} more
 																</span>
 															)}
+															{resultsData.outputValues.length > 8 &&
+																resultsData.outputValues.length <= 50 && (
+																	<span className='text-gray-400 text-xs'>
+																		+{resultsData.outputValues.length - 8} more
+																	</span>
+																)}
 														</div>
 													</div>
 													<div className='bg-green-50 p-3 rounded-lg border-l-4 border-green-400'>

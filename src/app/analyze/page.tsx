@@ -306,8 +306,9 @@ const AnalysisPage: React.FC = () => {
 								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 							/>
 							<div className='mt-1 text-xs text-gray-500'>
-								Необязательный параметр. Если не указан, рассчитывается
-								автоматически.
+								Количество интервалов (K) — на сколько частей разбивается
+								диапазон возможных значений, чтобы проверить равномерность
+								распределения.
 							</div>
 						</div>
 
@@ -431,7 +432,7 @@ const AnalysisPage: React.FC = () => {
 																			: 'text-red-600'
 																	}`}
 																>
-																	{Math.sqrt(Number(test.p_value.toFixed(6))) }
+																	{test.p_value.toFixed(6)}
 																</span>
 															</div>
 															<div>
